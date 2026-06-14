@@ -1,0 +1,21 @@
+name: validate
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate plugin (manifests, frontmatter, URL liveness)
+        run: ./scripts/validate-plugin.sh
+      - name: AGENTS.md is in sync
+        run: |
+          ./scripts/build-agents-md.sh
+          if ! git diff --quiet -- AGENTS.md; then
+            echo "AGENTS.md is stale — run scripts/build-agents-md.sh and commit." >&2
+            git --no-pager diff -- AGENTS.md
+            exit 1
+          fi
