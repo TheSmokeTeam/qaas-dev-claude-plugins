@@ -6,8 +6,8 @@ C#/.NET monorepo. It owns the cross-repo seams (repo map, framework dependency
 graph, release ripple, the Type A vs Type B extension distinction) and delegates
 in-repo detail to each repo's own `CLAUDE.md`.
 
-> Distinct from `eldarush/qaas-copilot` (which is for *using* QaaS to author
-> tests). This plugin is for *developing the platform itself*.
+> This plugin is for *developing the QaaS platform itself* — not for *using* QaaS
+> to author tests, which is a separate end-user concern.
 
 ## Install (Claude Code)
 

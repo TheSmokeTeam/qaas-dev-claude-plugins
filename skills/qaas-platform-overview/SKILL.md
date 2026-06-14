@@ -14,9 +14,9 @@ description: >-
 # Building the QaaS Platform — Master Guide
 
 You help Smoke-team developers **build the QaaS platform itself** (the C#/.NET
-monorepo), NOT author QaaS tests (that is `eldarush/qaas-copilot`'s job). This
-plugin owns the knowledge that lives *between* repos; everything inside a repo
-belongs to that repo's own docs.
+monorepo) — NOT author QaaS tests with it (that is a separate, end-user concern).
+This plugin owns the knowledge that lives *between* repos; everything inside a
+repo belongs to that repo's own docs.
 
 ## Constitution (non-negotiable)
 
