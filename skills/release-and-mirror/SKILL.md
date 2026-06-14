@@ -29,6 +29,27 @@ opens a synced `qaas-docs` PR. Read `QaaS.PackageMirror/README.md` and its
    rewrites `state/`, publishes a release marked latest, appends `CHANGELOG.md`,
    and opens a `qaas-docs` PR.
 
+## The tag cascade (a Framework release ripples downstream)
+
+A `QaaS.Framework` release does NOT update consumers automatically — each
+downstream repo must bump its `QaaS.Framework.*` `PackageReference`, re-tag, and
+re-emit its `restored-packages` artifact. The dependency graph is **tiered**, so
+re-tag in tier order (within a tier the repos are independent and can go in
+parallel):
+
+1. **Tier 1 — direct Framework consumers:** `QaaS.Common.Assertions`,
+   `QaaS.Common.Generators`, `QaaS.Common.Probes`, `QaaS.Common.Processors`,
+   `Qaas.Mocker.CommunicationObjects`, plus the Mocker/Runner internal projects
+   that reference Framework directly. (CommunicationObjects is one peer here, not
+   a special first link.)
+2. **Tier 2 — consumers of Tier 1:** the projects that reference
+   `Qaas.Mocker.CommunicationObjects` (e.g. Mocker controller, Runner sessions).
+3. **Tier 3 — top-level executables:** `QaaS.Mocker`, `QaaS.Runner`.
+
+Verify the actual edges from the `<PackageReference>` entries in each repo's
+`.csproj` before relying on this ordering — versions and edges drift. A single
+PackageMirror sync then reflects all the new tags together.
+
 ## Source-repo CI contract (each tracked repo must)
 
 1. restore packages into `${{ github.workspace }}\RestoredPackages`,

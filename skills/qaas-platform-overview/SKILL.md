@@ -43,12 +43,14 @@ repo belongs to that repo's own docs.
   family schemas; publishes releases and opens synced qaas-docs PRs.
 - **QaaS.Docs.Generator** + **qaas-docs** — deterministic docs renderer and the
   published site (https://docs.qaas.online / GitHub Pages).
-- **QaaS.Configuration**, **steak** (Kafka viewer), **DummyAppMock /
-  DummyAppTests** (samples), **qaas-dev-claude-plugins** (this plugin's home).
+- **QaaS.Configuration** — internal configuration package.
+- **QaaS.Runner.Template / QaaS.Mocker.Template** — `dotnet new` project templates.
 
-This is not an exhaustive or fixed list — the org grows. Always confirm the
-current set with `gh repo list TheSmokeTeam` or the PackageMirror "Tracked source
-repositories" list rather than trusting a count.
+These are the repos you touch when *developing the platform*. The org also
+contains repos that are NOT part of QaaS platform development — e.g. standalone
+tools and sample/demo apps — ignore those for this work. This list is neither
+exhaustive nor fixed; confirm the current set with `gh repo list TheSmokeTeam` or
+the PackageMirror "Tracked source repositories" list rather than trusting a count.
 
 ## Framework dependency graph (acyclic)
 
@@ -84,6 +86,23 @@ wiring (factory vs switch vs builder) is NOT the discriminator.
   (typed `switch` over `IPolicyConfig` in `PolicyBuilder`, chained by ascending
   `Index`). → use the `extend-framework-core` skill. Confirm the current Type B
   set against `QaaS.Framework`'s CLAUDE.md before relying on it.
+
+## Working discipline (QaaS-specific)
+
+Before claiming any change works, run these — evidence, not belief:
+
+- **TDD / verify in-repo.** Add or update a test in the repo's `*.Tests` project
+  for the behavior you changed, then run that repo's real commands from its
+  `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
+  `csharpier`). A change is "done" only when you have pasted-real build+test output
+  — never on the assumption that it compiles.
+- **Spec-anchored, anti-hallucination.** Every QaaS type, package id, config key,
+  or CI step you rely on must trace to an in-tree `CLAUDE.md`/`project_specs.md`
+  or `docs.qaas.online`. If it is not in front of you, say what is missing and
+  stop (docs-or-silence). Do not invent signatures, defaults, or repo names.
+- **Grill your own claims.** Before reporting, challenge each assertion: "what's
+  my evidence? did I run it, or assume it? what would a skeptic check?" Surface
+  the weakest claim explicitly rather than presenting guesses as facts.
 
 ## Routing — which skill / repo for a task
 
