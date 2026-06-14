@@ -5,7 +5,7 @@ description: >-
   ALWAYS read this FIRST for ANY work in the QaaS codebase — changing the
   framework, adding an assertion/generator/probe/processor, adding a
   protocol/serializer/policy, cutting a release, or finding where something lives.
-  Loads the 18-repo map, the framework dependency graph, the release ripple, the
+  Loads the multi-repo map, the framework dependency graph, the release ripple, the
   repo router, and the Type A vs Type B extension decision gate. Keywords: QaaS,
   TheSmokeTeam, QaaS.Framework, Runner, Mocker, PackageMirror, monorepo, hook,
   protocol, serializer, policy, release, where is.
@@ -20,9 +20,11 @@ belongs to that repo's own docs.
 
 ## Constitution (non-negotiable)
 
-1. **DELEGATE IN-REPO.** Every repo ships a root `CLAUDE.md` and per-project
-   `project_specs.md`. For anything inside a repo, open that repo and read its
-   `CLAUDE.md` FIRST. Do not duplicate or guess its contents.
+1. **DELEGATE IN-REPO.** Most implementation repos (Framework, Runner, Mocker,
+   the `Common.*` packages) ship a root `CLAUDE.md` and per-project
+   `project_specs.md`. For anything inside a repo, open it and read its `CLAUDE.md`
+   FIRST; if it has none (common for tooling/template/sample repos), fall back to
+   its `README.md`. Do not duplicate or guess in-repo contents.
 2. **DOCS-OR-SILENCE.** Never invent a repo name, package id, config key, type, or
    CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md` or `docs.qaas.online`.
    If a fact is not in front of you, say what is missing and stop.
@@ -41,11 +43,12 @@ belongs to that repo's own docs.
   family schemas; publishes releases and opens synced qaas-docs PRs.
 - **QaaS.Docs.Generator** + **qaas-docs** — deterministic docs renderer and the
   published site (https://docs.qaas.online / GitHub Pages).
-- **QaaS.Configuration**, **QaaS.PackageMirror**, **steak** (Kafka viewer),
-  **DummyAppMock / DummyAppTests** (samples).
+- **QaaS.Configuration**, **steak** (Kafka viewer), **DummyAppMock /
+  DummyAppTests** (samples), **qaas-dev-claude-plugins** (this plugin's home).
 
-Always confirm the current set with `gh repo list TheSmokeTeam` or by reading the
-PackageMirror "Tracked source repositories" list.
+This is not an exhaustive or fixed list — the org grows. Always confirm the
+current set with `gh repo list TheSmokeTeam` or the PackageMirror "Tracked source
+repositories" list rather than trusting a count.
 
 ## Framework dependency graph (acyclic)
 

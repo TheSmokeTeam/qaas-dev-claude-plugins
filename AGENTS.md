@@ -18,9 +18,11 @@ belongs to that repo's own docs.
 
 ## Constitution (non-negotiable)
 
-1. **DELEGATE IN-REPO.** Every repo ships a root `CLAUDE.md` and per-project
-   `project_specs.md`. For anything inside a repo, open that repo and read its
-   `CLAUDE.md` FIRST. Do not duplicate or guess its contents.
+1. **DELEGATE IN-REPO.** Most implementation repos (Framework, Runner, Mocker,
+   the `Common.*` packages) ship a root `CLAUDE.md` and per-project
+   `project_specs.md`. For anything inside a repo, open it and read its `CLAUDE.md`
+   FIRST; if it has none (common for tooling/template/sample repos), fall back to
+   its `README.md`. Do not duplicate or guess in-repo contents.
 2. **DOCS-OR-SILENCE.** Never invent a repo name, package id, config key, type, or
    CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md` or `docs.qaas.online`.
    If a fact is not in front of you, say what is missing and stop.
@@ -39,11 +41,12 @@ belongs to that repo's own docs.
   family schemas; publishes releases and opens synced qaas-docs PRs.
 - **QaaS.Docs.Generator** + **qaas-docs** — deterministic docs renderer and the
   published site (https://docs.qaas.online / GitHub Pages).
-- **QaaS.Configuration**, **QaaS.PackageMirror**, **steak** (Kafka viewer),
-  **DummyAppMock / DummyAppTests** (samples).
+- **QaaS.Configuration**, **steak** (Kafka viewer), **DummyAppMock /
+  DummyAppTests** (samples), **qaas-dev-claude-plugins** (this plugin's home).
 
-Always confirm the current set with `gh repo list TheSmokeTeam` or by reading the
-PackageMirror "Tracked source repositories" list.
+This is not an exhaustive or fixed list — the org grows. Always confirm the
+current set with `gh repo list TheSmokeTeam` or the PackageMirror "Tracked source
+repositories" list rather than trusting a count.
 
 ## Framework dependency graph (acyclic)
 
@@ -164,7 +167,7 @@ Type B — it is a hook; use `add-framework-hook` instead.
 
 | Family | Project | Selection mechanism |
 |---|---|---|
-| **Protocols** | `QaaS.Framework.Protocols` | Factories (`ReaderFactory`/`SenderFactory`/`TransactorFactory`/`FetcherFactory` + chunk variants) keyed by `SerializationType` + a protocol-specific config record. Closed set of 15+ (Kafka, RabbitMQ, HTTP, gRPC, MS-SQL, PostgreSQL, Oracle, Trino, Redis, MongoDB, Elastic, Prometheus, S3, SFTP, Socket, IBM MQ, Mocker proxy). Abstractions: `IReader`/`ISender`/`ITransactor`/`IFetcher`/`IChunkReader`/`IChunkSender`/`IConnectable`. |
+| **Protocols** | `QaaS.Framework.Protocols` | Factories (`ReaderFactory`/`SenderFactory`/`TransactorFactory`/`FetcherFactory` + chunk variants) keyed by `SerializationType` + a protocol-specific config record. A closed set covering messaging, SQL/NoSQL, storage, HTTP/gRPC, and observability backends (e.g. Kafka, RabbitMQ, HTTP, gRPC, MS-SQL, PostgreSQL, Oracle, Trino, Redis, MongoDB, Elastic, Prometheus, S3, SFTP, Socket, IBM MQ) plus the Mocker proxy the Runner uses to drive a paired mocker. Confirm the live set in `QaaS.Framework.Protocols/project_specs.md` — do not trust a count. Abstractions: `IReader`/`ISender`/`ITransactor`/`IFetcher`/`IChunkReader`/`IChunkSender`/`IConnectable`. |
 | **Serialization** | `QaaS.Framework.Serialization` | Serializer/deserializer factories. Formats: Binary, Json, MessagePack, Xml, Yaml, ProtobufMessage, XmlElement. |
 | **Policies** | `QaaS.Framework.Policies` | Typed `switch` over `IPolicyConfig` in `PolicyBuilder.Configure`/`Build` (a `default: throw` closed set), chained via `Add` in ascending `Index` order. Members: `CountPolicy`, `TimeoutPolicy`, `LoadBalancePolicy`, `IncreasingLoadBalancePolicy`, `AdvancedLoadBalancePolicy`. |
 
