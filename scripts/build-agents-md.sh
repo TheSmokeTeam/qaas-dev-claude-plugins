@@ -15,6 +15,8 @@ strip_fm() { awk 'BEGIN{f=0;done=0} NR==1&&$0=="---"{f=1;next} f&&!done&&$0=="--
   echo "Portable bundle of the qaas-platform-dev plugin's skills, for AI agents"
   echo "other than Claude Code (Cursor, Copilot, Codex, Gemini). Source of truth is"
   echo "\`skills/*/SKILL.md\`; regenerate with \`scripts/build-agents-md.sh\`."
+  echo "Use this generated fallback only when plugin skills are unavailable; loading"
+  echo "both would duplicate the same instructions in the agent context."
   echo
   # Overview first, then the workflow skills in an explicit stable order.
   order=("qaas-platform-overview" "qaas-graph-workflow" "add-framework-hook" "extend-framework-core" "release-and-mirror" "find-qaas-knowledge")

@@ -35,6 +35,11 @@ distinction) and delegates in-repo detail to each repo's own `CLAUDE.md`.
 Non-Claude-Code agents can ingest [`AGENTS.md`](./AGENTS.md), generated from the
 skills. Regenerate after editing any skill:
 
+`AGENTS.md` intentionally mirrors the skill bodies as a portable fallback. Do
+not load it in addition to installed plugin skills; that would duplicate the
+same instructions in the agent context. The files under `skills/` remain the
+only authored source of truth.
+
 ```bash
 ./scripts/build-agents-md.sh
 ```

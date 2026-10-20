@@ -13,6 +13,16 @@ as a disposable preview, artifacts committed on the canonical branch of
 remote source refs, runs the generator, and proposes artifact changes through a
 pull request. Never manually edit generated JSON, HTML, Mermaid, or SVG files.
 
+Keep tool ownership separate:
+
+- `qaas-graph` owns `scripts/generate.sh`, `scripts/extract_dependencies.py`,
+  its tests, workflows, registry, and generated artifacts. Read and run those
+  files from the graph checkout; do not copy them into this plugin.
+- This skill owns only `scripts/repo_sync.py`, the safety helper that inspects
+  and conservatively fast-forwards the graph checkout and registered source
+  repositories. Bundle it with the skill so it is available before generation
+  and even when `qaas-graph` must still be located or cloned.
+
 ## Read the live contract
 
 Locate `qaas-graph`, then read `README.md`, `repositories.yml`,
