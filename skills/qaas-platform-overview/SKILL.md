@@ -5,10 +5,11 @@ description: >-
   ALWAYS read this FIRST for ANY work in the QaaS codebase — changing the
   framework, adding an assertion/generator/probe/processor, adding a
   protocol/serializer/policy, cutting a release, or finding where something lives.
-  Loads the multi-repo map, the framework dependency graph, the release ripple, the
-  repo router, and the Type A vs Type B extension decision gate. Keywords: QaaS,
-  TheSmokeTeam, QaaS.Framework, Runner, Mocker, PackageMirror, monorepo, hook,
-  protocol, serializer, policy, release, where is.
+  Loads the multi-repo map, the qaas-graph architecture source, the framework
+  dependency graph, the release ripple, the repo router, and the Type A vs Type B
+  extension decision gate. Keywords: QaaS, qaas-graph, Graphify, TheSmokeTeam,
+  QaaS.Framework, Runner, Mocker, PackageMirror, monorepo, hook, protocol,
+  serializer, policy, release, where is.
 ---
 
 # Building the QaaS Platform — Master Guide
@@ -25,11 +26,17 @@ repo belongs to that repo's own docs.
    `project_specs.md`. For anything inside a repo, open it and read its `CLAUDE.md`
    FIRST; if it has none (common for tooling/template/sample repos), fall back to
    its `README.md`. Do not duplicate or guess in-repo contents.
-2. **DOCS-OR-SILENCE.** Never invent a repo name, package id, config key, type, or
-   CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md` or `docs.qaas.online`.
-   If a fact is not in front of you, say what is missing and stop.
+2. **SOURCES-OR-SILENCE.** Never invent a repo name, package id, config key,
+   type, dependency, or CI step. Use a committed `qaas-graph` artifact with
+   recorded provenance for cross-repo discovery, then verify code-level claims
+   in an in-tree `CLAUDE.md`/`project_specs.md`, source file, or
+   `docs.qaas.online`. If the evidence is not in front of you, say what is
+   missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
+4. **GRAPH FOR DISCOVERY, SOURCE FOR PROOF.** Use the committed `qaas-graph`
+   artifacts to find likely repositories, dependencies, symbols, and paths across
+   the platform. Verify every conclusion in the owning repo's docs or source.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -45,12 +52,36 @@ repo belongs to that repo's own docs.
   published site (https://docs.qaas.online / GitHub Pages).
 - **QaaS.Configuration** — internal configuration package.
 - **QaaS.Runner.Template / QaaS.Mocker.Template** — `dotnet new` project templates.
+- **qaas-graph** — reproducible, derived architecture map. Its committed MSBuild
+  dependency model and merged code graph are navigation sources, not replacements
+  for the registered repositories' docs and source.
 
 These are the repos you touch when *developing the platform*. The org also
 contains repos that are NOT part of QaaS platform development — e.g. standalone
 tools and sample/demo apps — ignore those for this work. This list is neither
 exhaustive nor fixed; confirm the current set with `gh repo list TheSmokeTeam` or
 the PackageMirror "Tracked source repositories" list rather than trusting a count.
+
+## QaaS graph as a knowledge source
+
+Use `qaas-graph` when a question crosses repository boundaries or the owning code
+is not yet known:
+
+- `graphs/repositories.json` contains evaluated project/package dependencies,
+  versions, target frameworks, evaluation modes, and source commit SHAs.
+- `graphify-out/graph.json` contains the merged code-level symbol and relationship
+  graph; use `graphify query`, `graphify explain`, or `graphify path` against it.
+
+Apply the `qaas-graph-workflow` skill to locate an existing checkout or clone
+`https://github.com/TheSmokeTeam/qaas-graph.git` only when graph functionality is
+needed. Query committed artifacts before considering regeneration. For a query,
+the graph checkout is sufficient; clone only the owning source repo needed for
+verification. Generation requires every input registered in `repositories.yml`.
+
+The graph contains only registered code inputs. It does not replace facts that
+exist only in repo prose, `qaas-docs`, PackageMirror, templates, or other
+unregistered repositories. Report whether a conclusion came from the committed
+baseline or a locally generated preview.
 
 ## Framework dependency graph (acyclic)
 
@@ -109,6 +140,7 @@ Before claiming any change works, run these — evidence, not belief:
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
+- "query / refresh / publish the QaaS graph" → `qaas-graph-workflow`.
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
 
@@ -124,3 +156,5 @@ before proposing changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
+- Treating a graph hit as authoritative without verifying it in source, or
+  cloning/regenerating the graph when the task does not need it.

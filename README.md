@@ -2,9 +2,9 @@
 
 A Claude Code plugin (+ portable `AGENTS.md`) that makes any AI agent productive
 at **building the QaaS platform** — the [TheSmokeTeam](https://github.com/TheSmokeTeam)
-C#/.NET monorepo. It owns the cross-repo seams (repo map, framework dependency
-graph, release ripple, the Type A vs Type B extension distinction) and delegates
-in-repo detail to each repo's own `CLAUDE.md`.
+C#/.NET monorepo. It owns the cross-repo seams (repo map, QaaS ecosystem graph,
+framework dependency graph, release ripple, and the Type A vs Type B extension
+distinction) and delegates in-repo detail to each repo's own `CLAUDE.md`.
 
 > This plugin is for *developing the QaaS platform itself* — not for *using* QaaS
 > to author tests, which is a separate end-user concern.
@@ -20,7 +20,8 @@ in-repo detail to each repo's own `CLAUDE.md`.
 
 | Surface | Purpose |
 |---|---|
-| `qaas-platform-overview` (always-on skill) | Repo map, dependency graph, release ripple, repo router, Type A/B decision gate. |
+| `qaas-platform-overview` (always-on skill) | Repo map, graph/source routing, release ripple, repo router, Type A/B decision gate. |
+| `qaas-graph-workflow` skill | Query, clone, regenerate, synchronize, and publish the reproducible `qaas-graph` safely. |
 | `add-framework-hook` skill | Add a Type A reflection hook (assertion/generator/probe/processor → `Common.*`). |
 | `extend-framework-core` skill | Add a Type B compiled-core member (protocol/serializer/policy → `QaaS.Framework`). |
 | `release-and-mirror` skill | The PackageMirror pipeline + source-repo CI contract. |

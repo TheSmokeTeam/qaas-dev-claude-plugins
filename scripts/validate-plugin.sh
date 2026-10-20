@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Validates the qaas-platform-dev plugin: manifests parse, every skill/command
-# has required frontmatter, and referenced TheSmokeTeam repos + docs resolve.
+# Validates the qaas-platform-dev plugin: manifests parse, skills and bundled
+# resources are complete, and referenced TheSmokeTeam repos + docs resolve.
 # This script manages its own failures via the `fail` accumulator and exits at
 # the end, so we intentionally do NOT use `set -e` (which would abort early).
 set -uo pipefail
@@ -13,6 +13,9 @@ for f in "$ROOT/.claude-plugin/plugin.json" "$ROOT/.claude-plugin/marketplace.js
   [ -f "$f" ] || { err "missing $f"; continue; }
   python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$f" || err "invalid JSON: $f"
 done
+python3 -c 'import json,sys; p=json.load(open(sys.argv[1])); m=json.load(open(sys.argv[2])); assert p["version"] == m["metadata"]["version"] == m["plugins"][0]["version"]' \
+  "$ROOT/.claude-plugin/plugin.json" "$ROOT/.claude-plugin/marketplace.json" \
+  || err "plugin and marketplace versions must match"
 
 # 2. Every skill has name + description frontmatter; name matches its directory.
 # Note: when a glob matches nothing, bash yields the literal pattern; the
@@ -24,6 +27,25 @@ for skill in "$ROOT"/skills/*/SKILL.md; do
   echo "$fm" | grep -q "^name: *$dir\$" || err "$skill: name must equal '$dir'"
   echo "$fm" | grep -Eq "^description: *([>|].*|\S.+)" || err "$skill: missing description"
 done
+
+# 2b. Skill UI metadata, when present, has the required interface fields.
+for metadata in "$ROOT"/skills/*/agents/openai.yaml; do
+  [ -f "$metadata" ] || continue
+  grep -q '^interface:' "$metadata" || err "$metadata: missing interface"
+  grep -Eq '^  display_name: *[^[:space:]]' "$metadata" || err "$metadata: missing display_name"
+  grep -Eq '^  short_description: *[^[:space:]]' "$metadata" || err "$metadata: missing short_description"
+  grep -Eq '^  default_prompt: *[^[:space:]]' "$metadata" || err "$metadata: missing default_prompt"
+done
+
+# 2c. The graph workflow's deterministic helper is bundled and parses as Python.
+graph_helper="$ROOT/skills/qaas-graph-workflow/scripts/repo_sync.py"
+if [ -f "$ROOT/skills/qaas-graph-workflow/SKILL.md" ]; then
+  [ -f "$graph_helper" ] || err "missing $graph_helper"
+  if [ -f "$graph_helper" ]; then
+    python3 -c 'import ast,sys; ast.parse(open(sys.argv[1], encoding="utf-8").read())' "$graph_helper" \
+      || err "invalid Python: $graph_helper"
+  fi
+fi
 
 # 3. Every command has a description.
 for cmd in "$ROOT"/commands/*.md; do

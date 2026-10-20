@@ -16,8 +16,8 @@ strip_fm() { awk 'BEGIN{f=0;done=0} NR==1&&$0=="---"{f=1;next} f&&!done&&$0=="--
   echo "other than Claude Code (Cursor, Copilot, Codex, Gemini). Source of truth is"
   echo "\`skills/*/SKILL.md\`; regenerate with \`scripts/build-agents-md.sh\`."
   echo
-  # Overview first, then the rest in stable alphabetical order.
-  order=("qaas-platform-overview" "add-framework-hook" "extend-framework-core" "release-and-mirror" "find-qaas-knowledge")
+  # Overview first, then the workflow skills in an explicit stable order.
+  order=("qaas-platform-overview" "qaas-graph-workflow" "add-framework-hook" "extend-framework-core" "release-and-mirror" "find-qaas-knowledge")
   for name in "${order[@]}"; do
     f="$ROOT/skills/$name/SKILL.md"
     [ -f "$f" ] || continue

@@ -1,0 +1,4 @@
+interface:
+  display_name: "QaaS Graph Workflow"
+  short_description: "Manage local, CI, and public QaaS graphs"
+  default_prompt: "Use $qaas-graph-workflow to manage the QaaS graph safely from local source inspection through CI publication and Pages deployment."
