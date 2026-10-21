@@ -30,6 +30,11 @@ repo belongs to that repo's own docs.
    If a fact is not in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
+4. **GRAPH-FIRST NAVIGATION.** When `qaas-graph` is available, query its committed
+   code graph and evaluated dependency graph before broad source searches. Use
+   graph results to find relationships and source locations, then verify claims in
+   the owning repo's source/in-tree docs or `docs.qaas.online`. A graph miss is not
+   proof that a relationship does not exist.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -110,17 +115,22 @@ Before claiming any change works, run these — evidence, not belief:
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
+- "query / sync / regenerate / publish the QaaS graph" → `qaas-knowledge-graph-flow`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
 
 ## Done when
 
 You have (a) identified the correct repo(s) for the task, (b) classified any
 extension work as Type A or Type B, and (c) read the relevant in-tree `CLAUDE.md`
-before proposing changes.
+before proposing changes. When the question involves architecture, symbols, or
+dependencies and `qaas-graph` is available, you have also queried the appropriate
+committed graph view and verified its result in source.
 
 ## Failure modes
 
 - Editing `QaaS.Framework` for something that should be a `Common.*` package
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
+- Skipping an available QaaS graph and beginning with a broad source search.
+- Treating a generated graph as a substitute for source or user-facing docs.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
