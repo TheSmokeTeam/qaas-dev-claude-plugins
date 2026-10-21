@@ -28,6 +28,11 @@ repo belongs to that repo's own docs.
    If a fact is not in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
+4. **GRAPH-FIRST NAVIGATION.** When `qaas-graph` is available, query its committed
+   code graph and evaluated dependency graph before broad source searches. Use
+   graph results to find relationships and source locations, then verify claims in
+   the owning repo's source/in-tree docs or `docs.qaas.online`. A graph miss is not
+   proof that a relationship does not exist.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -108,19 +113,24 @@ Before claiming any change works, run these — evidence, not belief:
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
+- "query / sync / regenerate / publish the QaaS graph" → `qaas-knowledge-graph-flow`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
 
 ## Done when
 
 You have (a) identified the correct repo(s) for the task, (b) classified any
 extension work as Type A or Type B, and (c) read the relevant in-tree `CLAUDE.md`
-before proposing changes.
+before proposing changes. When the question involves architecture, symbols, or
+dependencies and `qaas-graph` is available, you have also queried the appropriate
+committed graph view and verified its result in source.
 
 ## Failure modes
 
 - Editing `QaaS.Framework` for something that should be a `Common.*` package
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
+- Skipping an available QaaS graph and beginning with a broad source search.
+- Treating a generated graph as a substitute for source or user-facing docs.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
 
 ---
@@ -301,35 +311,270 @@ assumption.
 ---
 
 
-# Find QaaS Knowledge (docs-or-silence router)
+# Find QaaS Knowledge
 
-Resolve any "where is X / which doc covers Y" question to a concrete source. Never
+Resolve QaaS questions to concrete graph, source, or documentation evidence. Never
 answer QaaS specifics from memory.
 
-## Resolution order
+## Start with the graph
 
-1. **In-tree repo docs (authoritative for in-repo detail).** Every `TheSmokeTeam`
-   repo has a root `CLAUDE.md` and per-project `project_specs.md`. For code-level
-   questions, open the owning repo and read these first. Map of owners:
+1. Locate `qaas-graph` in the current workspace. Confirm it contains
+   `repositories.yml`, `graphify-out/graph.json`, and
+   `graphs/repositories.json`. Use the committed artifacts immediately; do not
+   rebuild or pull merely to answer a question.
+2. Choose the graph view that matches the question:
+   - code symbols, implementations, callers, paths, or architecture -> run
+     `graphify query`, `graphify explain`, or `graphify path` from `qaas-graph`;
+   - repository, project, NuGet package, target-framework, or dependency questions
+     -> inspect `graphs/repositories.json`, including its recorded source commits.
+3. Start with exact repository, project, class, interface, or method names. If a
+   broad query is noisy, narrow it with identifiers returned by the first query.
+4. Open every graph-cited `source_file` / `source_location` needed for the answer.
+   Treat the code graph as navigation and relationship evidence, not as authority
+   for prose-only behavior, configuration, or current user-facing YAML.
+
+Use `qaas-knowledge-graph-flow` for graph discovery, provenance, synchronization,
+regeneration, or publication details. If no graph checkout is available, continue
+with source/docs, state that graph evidence was unavailable, and do not clone or
+pull without authorization.
+
+## Verify with authoritative sources
+
+1. **In-tree instructions and docs (authoritative for in-repo detail).** Read the
+   owning repo's applicable `AGENTS.md` and `CLAUDE.md`, then its
+   `project_specs.md`; fall back to `README.md` when those sources do not cover the
+   topic. For code-level questions, inspect the graph-cited source as well. Map of
+   owners:
    - hook contracts, protocols, policies, serialization, providers, config loader,
-     executions → `QaaS.Framework` (per-project `project_specs.md`).
-   - a specific assertion/generator/probe/processor → the matching `QaaS.Common.*`.
-   - runner/mocker behavior → `QaaS.Runner` / `QaaS.Mocker`.
-   - release/mirror/schemas → `QaaS.PackageMirror`.
+     executions -> `QaaS.Framework` (per-project `project_specs.md`).
+   - a specific assertion/generator/probe/processor -> the matching `QaaS.Common.*`.
+   - runner/mocker behavior -> `QaaS.Runner` / `QaaS.Mocker`.
+   - release/mirror/schemas -> `QaaS.PackageMirror`.
 2. **Live docs (authoritative for user-facing config).** `https://docs.qaas.online/`
    (regenerated by `QaaS.Docs.Generator`). Per-hook `overview` / `yamlView` /
    `tableView` pages and `_generated/schemas/*` are ground truth for YAML shapes.
-3. **Cross-repo seams** → this plugin's other skills (`qaas-platform-overview`,
+3. **Cross-repo seams** -> this plugin's other skills (`qaas-platform-overview`,
    `add-framework-hook`, `extend-framework-core`, `release-and-mirror`).
-4. **Not found?** State exactly what is missing and stop. Do not invent.
+4. **Not found?** State exactly which graph/source/doc evidence is missing and
+   stop. Do not invent.
+
+## Evidence contract
+
+- Cite graph-derived relationships with the graph artifact and its
+  `source_file` / `source_location`, then cite the opened source or in-tree doc
+  that verifies the implementation claim.
+- Cite evaluated dependency claims from `graphs/repositories.json` together with
+  the recorded repository commit when freshness matters.
+- Prefer `docs.qaas.online` for public YAML/configuration shapes even when the
+  graph finds the implementation type.
+- Report whether the graph was a committed baseline or a local preview. Never
+  imply that a local preview is canonical or public.
 
 ## Done when
 
-You have named a concrete source (a repo file path or a docs URL) for the answer,
-or explicitly reported what could not be found.
+You have queried the available graph when relevant, verified the result in an
+authoritative source, named concrete paths/URLs, and reported any missing evidence.
 
 ## Failure modes
 
 - Answering from stale training memory instead of the live source.
+- Searching repositories broadly before querying an available graph.
+- Treating a noisy or missing graph traversal as proof that no relationship exists.
+- Presenting a graph edge as sufficient proof for prose-only behavior or YAML.
 - Pointing at this plugin for in-repo detail that belongs in a repo's CLAUDE.md.
+
+---
+
+
+# QaaS Knowledge Graph Flow
+
+Use `qaas-graph` as a navigation and verification aid throughout QaaS work. Treat
+source repositories as inputs, committed local artifacts as a baseline, locally
+regenerated artifacts as a preview, merged artifacts on the canonical branch as
+canonical, and a successful Pages deployment as public.
+
+## Establish the live contract
+
+Locate `qaas-graph`. Before relying on commands, repository names, branches, or
+versions, read its:
+
+- `README.md`
+- `repositories.yml`
+- `requirements.txt`
+- `scripts/generate.sh`
+- `scripts/extract_dependencies.py`
+- `.gitignore` and `.graphifyignore`
+- relevant `.github/workflows/` files
+
+Derive paths, registered inputs, pinned versions, CI triggers, and deployment
+behavior from those files. Live files override examples in this skill. Read
+[references/workspace-and-commands.md](references/workspace-and-commands.md) when
+setting up a workspace or selecting audit, query, generation, or publication
+commands.
+
+Never edit generated JSON, HTML, Mermaid, SVG, or README graph blocks manually.
+Change source, registry, or generator code and regenerate.
+
+## Discover an available graph
+
+Search the current directory, its ancestors, and their immediate workspace roots
+for a `qaas-graph` directory containing `repositories.yml`. Do not assume a fixed
+absolute path.
+
+If `qaas-graph` is present:
+
+1. Inspect its branch, upstream, HEAD, and dirtiness.
+2. Confirm whether `graphify-out/graph.json` and `graphs/repositories.json` exist.
+3. Use those committed artifacts immediately for exploration; do not rebuild,
+   fetch, or pull merely because a question was asked.
+4. Resolve registered source paths relative to `repositories.yml`.
+5. Label graph provenance precisely: committed baseline or local preview.
+
+If `qaas-graph` is absent:
+
+1. Continue with source and documentation when possible.
+2. State that graph evidence is unavailable.
+3. Clone `qaas-graph` only when the user authorizes obtaining it.
+4. After cloning, read the live contract before cloning any registered inputs.
+
+Any generation mode requires all registered source repositories to exist. Never
+replace an existing directory. Verify every existing input is a Git repository
+whose `origin` matches the registry URL; equivalent GitHub SSH and HTTPS forms
+are acceptable.
+
+## Query before broad source search
+
+Choose the graph view that matches the question:
+
+| Question | Evidence |
+| --- | --- |
+| Code symbol, implementation, caller, path, or architecture | `graphify-out/graph.json` via Graphify query tools |
+| Repository/project/package ownership or dependency | `graphs/repositories.json` |
+| Public YAML/configuration contract | `docs.qaas.online`, using the graph only to locate implementation |
+| Prose-only behavior or team policy | In-tree `AGENTS.md`, `CLAUDE.md`, `project_specs.md`, or `README.md` |
+
+Run code queries from `qaas-graph` so Graphify finds the committed graph:
+
+```bash
+graphify query "<architecture question>"
+graphify explain "<exact symbol>"
+graphify path "<source symbol>" "<target symbol>"
+```
+
+Start with exact repository, project, class, interface, or method names. If a
+broad query selects noisy start nodes, narrow it with identifiers found in graph
+output or source. A noisy traversal is not evidence that no relationship exists.
+
+For every implementation claim:
+
+1. Record the graph artifact and cited `source_file` / `source_location`.
+2. Open that source in the registered repository.
+3. Read applicable repo-local `AGENTS.md` and `CLAUDE.md`, plus the relevant
+   `project_specs.md`; use `README.md` as fallback/context.
+4. Verify user-facing configuration against `docs.qaas.online`.
+5. Report graph provenance and any missing evidence.
+
+The code graph is code-only. It cannot establish facts that live only in prose,
+issues, or generated QaaS docs. The evaluated dependency graph can establish the
+relationships it records, but freshness is bounded by its recorded source commits.
+
+## Audit and synchronize only at boundaries
+
+Use local status for provenance. Fetch before claiming a checkout is current
+relative to a remote. Pull only when deliberately adopting upstream work.
+
+```bash
+python3 /path/to/this-skill/scripts/repo_sync.py \
+  status --graph-repo /path/to/qaas-graph
+
+python3 /path/to/this-skill/scripts/repo_sync.py \
+  status --fetch --graph-repo /path/to/qaas-graph
+
+python3 /path/to/this-skill/scripts/repo_sync.py \
+  sync --graph-repo /path/to/qaas-graph
+```
+
+The helper fetches and fast-forwards only clean, behind-only branches. It reports
+dirty, ahead, diverged, detached, upstream-less, missing, invalid,
+remote-mismatched, and fetch-failed repositories without rewriting them. Never
+bypass a block with stash, clean, reset, rebase, merge, remote replacement,
+deletion, or force-push.
+
+Synchronize when:
+
+- starting work that explicitly requires latest upstream;
+- deliberately accepting teammate changes;
+- integrating before publication;
+- updating graph tooling itself; or
+- obtaining a newly merged canonical graph locally.
+
+Do not pull between ordinary feature edits or before a read-only graph query.
+
+## Regenerate only for changed local inputs
+
+Use the smallest truthful preview:
+
+| Change | Command |
+| --- | --- |
+| Classes, methods, symbols, or code relationships | `scripts/generate.sh --graphify-only` |
+| Project/package references, target frameworks, or MSBuild evaluation | `scripts/generate.sh --dependencies-only` |
+| Both views changed, or final verification | `scripts/generate.sh` |
+| Graphify cache is demonstrably stale | Add `--force` to a Graphify-producing run |
+
+Use `scripts/generate.sh` for normal generation. Run
+`scripts/extract_dependencies.py` directly only to list resolved inputs,
+debug/test dependency extraction, or supply custom paths.
+
+Before generation, record each input's branch, HEAD, dirtiness, and fetch status.
+After generation, report the exact command, changed artifacts, compact diff, and
+source state represented. CI cannot reproduce uncommitted changes, unpushed
+commits, or refs it does not check out. A failed full run may leave partial
+artifacts; do not call that preview complete.
+
+## Publish through the canonical flow
+
+For feature work:
+
+```text
+local source edit -> source tests -> local graph preview -> source commit/PR
+-> source reaches the ref consumed by graph CI -> graph update workflow
+-> automation artifact PR -> merge -> Pages deployment
+```
+
+Do not push a local preview as a substitute for graph CI. Trigger workflows,
+push, open/merge PRs, or change published state only when requested.
+
+When changing `repositories.yml`, generators, tests, requirements, documentation,
+or workflows, use a normal human PR. Keep the registry and any explicit CI
+checkout list aligned, test and generate locally, merge the tooling change first,
+then allow graph CI to propose generated artifacts.
+
+## Report state precisely
+
+1. **Committed baseline**: generated artifacts checked out locally.
+2. **Local preview**: artifacts regenerated from stated local source commits and
+   possibly uncommitted changes.
+3. **Automation PR**: CI proposal; canonical and public state are unchanged.
+4. **Canonical graph**: generated artifacts merged to the canonical branch.
+5. **Public graph**: canonical interactive HTML successfully deployed.
+
+Report source commits, dirtiness, whether remotes were fetched, query/generation
+evidence, and remaining blockers. Do not infer freshness from timestamps.
+
+## Done when
+
+For knowledge questions, query the relevant available graph, verify findings in
+source/docs, and report provenance. For graph changes, regenerate from recorded
+inputs, run graph-repo tests, inspect the artifact diff, and name the furthest
+publication state actually reached.
+
+## Guardrails
+
+- Treat only `repositories.yml` entries as graph inputs.
+- Keep generated outputs tracked while excluding caches and generated graph data
+  from Graphify's own scan.
+- Do not claim exact reproducibility without identical source commits, ignore
+  rules, pinned Graphify version, and relevant toolchain.
+- Treat `Community N` labels as unnamed clusters, not missing extraction.
+- Never use a graph result to bypass repo-local instructions or authoritative docs.
 
