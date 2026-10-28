@@ -23,9 +23,11 @@ repo belongs to that repo's own docs.
    `project_specs.md`. For anything inside a repo, open it and read its `CLAUDE.md`
    FIRST; if it has none (common for tooling/template/sample repos), fall back to
    its `README.md`. Do not duplicate or guess in-repo contents.
-2. **DOCS-OR-SILENCE.** Never invent a repo name, package id, config key, type, or
-   CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md` or `docs.qaas.online`.
-   If a fact is not in front of you, say what is missing and stop.
+2. **EVIDENCE-OR-SILENCE.** Never invent a repo name, package id, config key,
+   type, relationship, or CI step. Cite an in-tree
+   `CLAUDE.md`/`project_specs.md`, `docs.qaas.online`, or—only for observed code
+   structure and relationships—`qaas-knowledge-graph` output. If evidence is not
+   in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
 
@@ -94,10 +96,11 @@ Before claiming any change works, run these — evidence, not belief:
   `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
   `csharpier`). A change is "done" only when you have pasted-real build+test output
   — never on the assumption that it compiles.
-- **Spec-anchored, anti-hallucination.** Every QaaS type, package id, config key,
-  or CI step you rely on must trace to an in-tree `CLAUDE.md`/`project_specs.md`
-  or `docs.qaas.online`. If it is not in front of you, say what is missing and
-  stop (docs-or-silence). Do not invent signatures, defaults, or repo names.
+- **Evidence-anchored, anti-hallucination.** Every QaaS type, package id, config
+  key, relationship, or CI step must trace to in-tree docs, `docs.qaas.online`,
+  or `qaas-knowledge-graph` provenance for observed source relationships. If it
+  is not in front of you, say what is missing and stop. Do not invent signatures,
+  defaults, edges, or repo names.
 - **Grill your own claims.** Before reporting, challenge each assertion: "what's
   my evidence? did I run it, or assume it? what would a skeptic check?" Surface
   the weakest claim explicitly rather than presenting guesses as facts.
@@ -107,6 +110,8 @@ Before claiming any change works, run these — evidence, not belief:
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
+- "architecture / dependency / call flow / ownership / impact / path" →
+  `qaas-knowledge-graph` (normally reached through `find-qaas-knowledge`).
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
 
@@ -122,6 +127,7 @@ before proposing changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
+- Treating graph evidence as normative configuration or release documentation.
 
 ---
 
@@ -301,7 +307,62 @@ assumption.
 ---
 
 
-# Find QaaS Knowledge (docs-or-silence router)
+# Query the QaaS Knowledge Graph
+
+Use the committed graph from `TheSmokeTeam/qaas-graph` as the only graph source.
+Never build a graph from the open repository.
+
+## Query workflow
+
+1. Select BFS for broad architecture and relationship questions. Select `--dfs`
+   only when the user asks to trace a chain or flow.
+2. Run the bundled wrapper from the user's current workspace:
+
+   ```bash
+   python3 <skill-directory>/scripts/qaas_graph.py query \
+     --workspace "$PWD" \
+     --question "<question>" \
+     --budget 2000
+   ```
+
+   Add `--dfs` for a trace. Pass a different absolute directory to `--workspace`
+   only when the opened workspace cannot be inferred from the current directory.
+3. Treat a freshness warning as part of the answer: the cached graph was valid,
+   but GitHub could not be checked. Treat any other wrapper error as blocking.
+4. Answer only from the returned nodes and edges. Cite concrete evidence as
+   `repo/source_file:source_location`. State when the graph does not contain
+   enough evidence; never invent a relationship.
+
+The wrapper places `qaas-graph` beside an opened Git repository, or directly
+under a non-Git workspace root. It clones or synchronizes only the canonical
+`main` branch. It updates only a clean cache that it previously marked as
+managed, and never overwrites another checkout.
+
+## Knowledge-source boundary
+
+- Use the graph for observed code structure and relationships: architecture,
+  dependencies, call flow, ownership, impact, and paths.
+- Use in-tree repository docs and `docs.qaas.online` for normative contracts,
+  configuration shapes, release procedures, and user-facing behavior.
+- When graph and docs differ, report the difference and their freshness. Do not
+  silently reinterpret one source as the other.
+
+## Hard boundaries
+
+- Never run Graphify `extract`, `update`, `cluster-only`, `add`, `watch`, or an
+  export command for this workflow.
+- Never run `save-result` or `reflect`; do not add memory, vocabulary, cache, or
+  learning files to the canonical clone.
+- Never scan local QaaS repositories or create `graphify-out` in them.
+- Never edit, regenerate, recluster, enrich, or directly write the cached graph.
+- Do not install Graphify automatically. If the wrapper reports it missing,
+  show the pinned requirement path it provides and request permission before
+  changing the machine's toolchain.
+
+---
+
+
+# Find QaaS Knowledge (evidence-or-silence router)
 
 Resolve any "where is X / which doc covers Y" question to a concrete source. Never
 answer QaaS specifics from memory.
@@ -319,17 +380,32 @@ answer QaaS specifics from memory.
 2. **Live docs (authoritative for user-facing config).** `https://docs.qaas.online/`
    (regenerated by `QaaS.Docs.Generator`). Per-hook `overview` / `yamlView` /
    `tableView` pages and `_generated/schemas/*` are ground truth for YAML shapes.
-3. **Cross-repo seams** → this plugin's other skills (`qaas-platform-overview`,
+3. **QaaS knowledge graph (evidence for observed source relationships).** Invoke
+   `qaas-knowledge-graph` for architecture, dependency, call-flow, ownership,
+   impact, path, or other relationship questions. Use BFS for broad questions
+   and DFS only for an explicit trace. Answer only from returned nodes and edges,
+   cite `repo/source_file:source_location`, and surface any freshness warning.
+4. **Cross-repo seams** → this plugin's other skills (`qaas-platform-overview`,
    `add-framework-hook`, `extend-framework-core`, `release-and-mirror`).
-4. **Not found?** State exactly what is missing and stop. Do not invent.
+5. **Not found?** State exactly what is missing and stop. Do not invent.
+
+## Combining sources
+
+- Use repository and live docs for intended contracts, configuration, release
+  procedures, and user-facing behavior.
+- Use graph evidence for current indexed source structure and relationships.
+- If sources disagree, report the discrepancy and the graph freshness instead
+  of silently choosing one.
 
 ## Done when
 
-You have named a concrete source (a repo file path or a docs URL) for the answer,
-or explicitly reported what could not be found.
+You have cited a concrete source (a repo file path, docs URL, or graph provenance
+location) for the answer, or explicitly reported what could not be found.
 
 ## Failure modes
 
 - Answering from stale training memory instead of the live source.
 - Pointing at this plugin for in-repo detail that belongs in a repo's CLAUDE.md.
+- Treating graph relationships as normative configuration or release docs.
+- Inventing an edge when the graph does not contain enough evidence.
 
