@@ -35,8 +35,9 @@ Never build a graph from the open repository.
    enough evidence; never invent a relationship.
 
 The wrapper places `qaas-graph` beside an opened Git repository, or directly
-under a non-Git workspace root. It clones or synchronizes only the canonical
-`main` branch. It updates only a clean cache that it previously marked as
+under a non-Git workspace root. It uses a shallow, blob-filtered sparse checkout
+of canonical `main` that materializes only `graphify-out/graph.json` and
+`requirements.txt`. It updates only a clean cache that it previously marked as
 managed, and never overwrites another checkout.
 
 ## Hard boundaries

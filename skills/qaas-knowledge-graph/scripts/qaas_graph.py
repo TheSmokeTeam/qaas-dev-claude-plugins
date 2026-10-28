@@ -18,6 +18,10 @@ from typing import IO, Sequence
 REMOTE_URL = "https://github.com/TheSmokeTeam/qaas-graph.git"
 BRANCH = "main"
 GRAPH_RELATIVE_PATH = Path("graphify-out/graph.json")
+SPARSE_CHECKOUT_PATHS = (
+    f"/{GRAPH_RELATIVE_PATH.as_posix()}",
+    "/requirements.txt",
+)
 MANAGED_KEY = "qaas.graphCacheManaged"
 SYNCED_COMMIT_KEY = "qaas.graphCacheCommit"
 
@@ -217,6 +221,20 @@ def _validate_commit_graph(repo: Path, commit: str) -> None:
         validate_graph(Path(temp.name))
 
 
+def _set_sparse_checkout(repo: Path) -> None:
+    result = _git(
+        repo,
+        "sparse-checkout",
+        "set",
+        "--no-cone",
+        *SPARSE_CHECKOUT_PATHS,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "sparse checkout failed").strip()
+        raise QaasGraphError(detail)
+
+
 def _clone(repo: Path) -> None:
     if repo.exists():
         raise QaasGraphError(f"refusing to overwrite existing path: {repo}")
@@ -230,6 +248,8 @@ def _clone(repo: Path) -> None:
             "--single-branch",
             "--branch",
             BRANCH,
+            "--filter=blob:none",
+            "--no-checkout",
             REMOTE_URL,
             str(repo),
         ],
@@ -238,6 +258,8 @@ def _clone(repo: Path) -> None:
     if result.returncode != 0:
         detail = (result.stderr or result.stdout or "clone failed").strip()
         raise QaasGraphError(detail)
+    _set_sparse_checkout(repo)
+    _git(repo, "checkout", "--force", BRANCH)
     commit = _head(repo)
     validate_graph(repo / GRAPH_RELATIVE_PATH)
     _mark_managed(repo, commit)
@@ -246,6 +268,7 @@ def _clone(repo: Path) -> None:
 
 def _sync_managed(repo: Path, remote_commit: str) -> None:
     _ensure_clean_managed_state(repo)
+    _set_sparse_checkout(repo)
     result = _git(
         repo,
         "fetch",
@@ -298,6 +321,7 @@ def ensure_graph(workspace: Path) -> Path:
                 "GitHub freshness could not be checked and the existing checkout is not a managed cache"
             )
         _ensure_clean_managed_state(repo)
+        _set_sparse_checkout(repo)
         validate_graph(graph_path)
         print(
             f"WARNING: GitHub freshness could not be verified; using valid cached graph at {_head(repo)[:12]} ({remote_error})",
@@ -308,6 +332,8 @@ def ensure_graph(workspace: Path) -> Path:
     current = _head(repo)
     if current == remote_commit:
         _ensure_clean_checkout(repo)
+        if _is_managed(repo):
+            _set_sparse_checkout(repo)
         validate_graph(graph_path)
         print(f"qaas-graph: current at {current[:12]}", file=sys.stderr)
         return graph_path
