@@ -1,12 +1,11 @@
 ---
 name: qaas-knowledge-graph
 description: >-
-  Query the CI-generated QaaS ecosystem Graphify graph as a source of evidence
-  for QaaS codebase architecture, dependencies, call flows, ownership, impact,
-  paths, and relationships. Use directly for those questions and whenever
-  find-qaas-knowledge needs source-graph evidence alongside repository or live
-  documentation. Synchronizes a read-only local cache from
-  TheSmokeTeam/qaas-graph main and queries its existing graphify-out/graph.json.
+  Query the CI-generated QaaS ecosystem Graphify graph without building or
+  updating a graph from local repositories. Use for QaaS codebase architecture,
+  dependency, call-flow, ownership, impact, path, or relationship questions.
+  Synchronizes a read-only local cache from TheSmokeTeam/qaas-graph main and
+  queries its existing graphify-out/graph.json.
 ---
 
 # Query the QaaS Knowledge Graph
@@ -39,15 +38,6 @@ The wrapper places `qaas-graph` beside an opened Git repository, or directly
 under a non-Git workspace root. It clones or synchronizes only the canonical
 `main` branch. It updates only a clean cache that it previously marked as
 managed, and never overwrites another checkout.
-
-## Knowledge-source boundary
-
-- Use the graph for observed code structure and relationships: architecture,
-  dependencies, call flow, ownership, impact, and paths.
-- Use in-tree repository docs and `docs.qaas.online` for normative contracts,
-  configuration shapes, release procedures, and user-facing behavior.
-- When graph and docs differ, report the difference and their freshness. Do not
-  silently reinterpret one source as the other.
 
 ## Hard boundaries
 

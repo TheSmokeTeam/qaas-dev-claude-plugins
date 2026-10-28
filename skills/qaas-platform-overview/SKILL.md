@@ -26,10 +26,9 @@ repo belongs to that repo's own docs.
    FIRST; if it has none (common for tooling/template/sample repos), fall back to
    its `README.md`. Do not duplicate or guess in-repo contents.
 2. **EVIDENCE-OR-SILENCE.** Never invent a repo name, package id, config key,
-   type, relationship, or CI step. Cite an in-tree
-   `CLAUDE.md`/`project_specs.md`, `docs.qaas.online`, or—only for observed code
-   structure and relationships—`qaas-knowledge-graph` output. If evidence is not
-   in front of you, say what is missing and stop.
+   type, relationship, or CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md`,
+   `docs.qaas.online`, or `qaas-knowledge-graph` for source relationships. If a
+   fact is not in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
 
@@ -98,11 +97,10 @@ Before claiming any change works, run these — evidence, not belief:
   `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
   `csharpier`). A change is "done" only when you have pasted-real build+test output
   — never on the assumption that it compiles.
-- **Evidence-anchored, anti-hallucination.** Every QaaS type, package id, config
-  key, relationship, or CI step must trace to in-tree docs, `docs.qaas.online`,
-  or `qaas-knowledge-graph` provenance for observed source relationships. If it
-  is not in front of you, say what is missing and stop. Do not invent signatures,
-  defaults, edges, or repo names.
+- **Spec-anchored, anti-hallucination.** Every QaaS type, package id, config key,
+  or CI step you rely on must trace to an in-tree `CLAUDE.md`/`project_specs.md`
+  or `docs.qaas.online`. If it is not in front of you, say what is missing and
+  stop (docs-or-silence). Do not invent signatures, defaults, or repo names.
 - **Grill your own claims.** Before reporting, challenge each assertion: "what's
   my evidence? did I run it, or assume it? what would a skeptic check?" Surface
   the weakest claim explicitly rather than presenting guesses as facts.
@@ -112,8 +110,6 @@ Before claiming any change works, run these — evidence, not belief:
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
-- "architecture / dependency / call flow / ownership / impact / path" →
-  `qaas-knowledge-graph` (normally reached through `find-qaas-knowledge`).
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
 
@@ -129,4 +125,3 @@ before proposing changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
-- Treating graph evidence as normative configuration or release documentation.

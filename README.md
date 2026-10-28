@@ -4,8 +4,7 @@ A Claude Code plugin (+ portable `AGENTS.md`) that makes any AI agent productive
 at **building the QaaS platform** — the [TheSmokeTeam](https://github.com/TheSmokeTeam)
 C#/.NET monorepo. It owns the cross-repo seams (repo map, framework dependency
 graph, release ripple, the Type A vs Type B extension distinction) and delegates
-in-repo detail to each repo's own `CLAUDE.md`. It can also query the canonical,
-CI-generated QaaS knowledge graph for current source relationships.
+in-repo detail to each repo's own `CLAUDE.md`.
 
 > This plugin is for *developing the QaaS platform itself* — not for *using* QaaS
 > to author tests, which is a separate end-user concern.

@@ -10,7 +10,4 @@ Apply the `qaas-platform-overview` skill's router and Type A/B decision gate:
 2. If it is an extension, classify Type A (reflection hook → `add-framework-hook`)
    vs Type B (compiled core → `extend-framework-core`).
 3. Name the in-tree `CLAUDE.md` / `project_specs.md` to read first.
-4. For architecture, dependency, call-flow, ownership, impact, or path evidence,
-   invoke `qaas-knowledge-graph` through `find-qaas-knowledge` and cite the
-   returned provenance.
-5. If anything is unknown, say what is missing — do not invent.
+4. If anything is unknown, say what is missing — do not invent. (docs-or-silence)
