@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Renders all SKILL.md bodies into a single portable AGENTS.md for non-CC agents.
+# Renders portable SKILL.md bodies into a single AGENTS.md for non-CC agents.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="$ROOT/AGENTS.md"
@@ -16,8 +16,9 @@ strip_fm() { awk 'BEGIN{f=0;done=0} NR==1&&$0=="---"{f=1;next} f&&!done&&$0=="--
   echo "other than Claude Code (Cursor, Copilot, Codex, Gemini). Source of truth is"
   echo "\`skills/*/SKILL.md\`; regenerate with \`scripts/build-agents-md.sh\`."
   echo
-  # Overview first, then the rest in stable alphabetical order.
-  order=("qaas-platform-overview" "add-framework-hook" "extend-framework-core" "release-and-mirror" "qaas-knowledge-graph" "find-qaas-knowledge")
+  # Overview first, then the portable text-only skills. The graph skill depends
+  # on its bundled wrapper, so keep it in skills/ instead of duplicating it here.
+  order=("qaas-platform-overview" "add-framework-hook" "extend-framework-core" "release-and-mirror" "find-qaas-knowledge")
   for name in "${order[@]}"; do
     f="$ROOT/skills/$name/SKILL.md"
     [ -f "$f" ] || continue

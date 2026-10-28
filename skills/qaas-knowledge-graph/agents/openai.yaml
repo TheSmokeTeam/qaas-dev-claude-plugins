@@ -1,4 +1,0 @@
-interface:
-  display_name: "QaaS Knowledge Graph"
-  short_description: "Query the canonical QaaS source graph"
-  default_prompt: "Use $qaas-knowledge-graph to answer this QaaS architecture question from the canonical graph."

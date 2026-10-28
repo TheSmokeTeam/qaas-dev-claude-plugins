@@ -1,6 +1,6 @@
 {
   "name": "qaas-platform-dev",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cross-repo guide for Smoke-team developers building the QaaS platform (TheSmokeTeam C#/.NET monorepo). Knows the multi-repo map, the framework dependency graph, the release ripple, and the two extension mechanisms — Type A reflection hooks (Common.* packages) vs Type B compiled framework core (protocols, serialization, policies). Routes evidence across in-repo docs, docs.qaas.online, and the canonical CI-generated QaaS knowledge graph.",
   "author": { "name": "TheSmokeTeam" },
   "homepage": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
