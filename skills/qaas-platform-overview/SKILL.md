@@ -25,9 +25,10 @@ repo belongs to that repo's own docs.
    `project_specs.md`. For anything inside a repo, open it and read its `CLAUDE.md`
    FIRST; if it has none (common for tooling/template/sample repos), fall back to
    its `README.md`. Do not duplicate or guess in-repo contents.
-2. **DOCS-OR-SILENCE.** Never invent a repo name, package id, config key, type, or
-   CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md` or `docs.qaas.online`.
-   If a fact is not in front of you, say what is missing and stop.
+2. **EVIDENCE-OR-SILENCE.** Never invent a repo name, package id, config key,
+   type, relationship, or CI step. Cite an in-tree `CLAUDE.md`/`project_specs.md`,
+   `docs.qaas.online`, or `qaas-knowledge-graph` for source relationships. If a
+   fact is not in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
 

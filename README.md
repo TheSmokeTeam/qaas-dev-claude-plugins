@@ -24,7 +24,8 @@ in-repo detail to each repo's own `CLAUDE.md`.
 | `add-framework-hook` skill | Add a Type A reflection hook (assertion/generator/probe/processor → `Common.*`). |
 | `extend-framework-core` skill | Add a Type B compiled-core member (protocol/serializer/policy → `QaaS.Framework`). |
 | `release-and-mirror` skill | The PackageMirror pipeline + source-repo CI contract. |
-| `find-qaas-knowledge` skill | Docs-or-silence knowledge router. |
+| `qaas-knowledge-graph` skill | Read-only queries against the canonical QaaS source graph for architecture and relationships. |
+| `find-qaas-knowledge` skill | Evidence router across repo docs, live docs, the knowledge graph, and cross-repo skills. |
 | `qaas-verifier` (subagent) | Independent read-only verification that a change builds/tests green, incl. framework blast radius. |
 | `/qaas-where <task>` | Route a task to the right repo + skill. |
 | `/qaas-release [<repo> <version>]` | Walk the release/mirror flow. |
