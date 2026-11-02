@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: type-b-feature
+tags: [planning, feature, type-b, cross-repo]
+context:
+  scaffold_script: scaffold.sh

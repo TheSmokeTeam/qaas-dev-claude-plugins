@@ -17,7 +17,15 @@ strip_fm() { awk 'BEGIN{f=0;done=0} NR==1&&$0=="---"{f=1;next} f&&!done&&$0=="--
   echo "\`skills/*/SKILL.md\`; regenerate with \`scripts/build-agents-md.sh\`."
   echo
   # Overview first, then the rest in stable alphabetical order.
-  order=("qaas-platform-overview" "add-framework-hook" "extend-framework-core" "release-and-mirror" "find-qaas-knowledge")
+  order=(
+    "qaas-platform-overview"
+    "find-qaas-knowledge"
+    "qaas-knowledge-graph"
+    "plan-qaas-change"
+    "add-framework-hook"
+    "extend-framework-core"
+    "release-and-mirror"
+  )
   for name in "${order[@]}"; do
     f="$ROOT/skills/$name/SKILL.md"
     [ -f "$f" ] || continue

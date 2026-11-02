@@ -4,7 +4,8 @@ description: >-
   Master guide for DEVELOPING the QaaS platform (TheSmokeTeam C#/.NET monorepo).
   ALWAYS read this FIRST for ANY work in the QaaS codebase — changing the
   framework, adding an assertion/generator/probe/processor, adding a
-  protocol/serializer/policy, cutting a release, or finding where something lives.
+  protocol/serializer/policy, planning or implementing a feature/bugfix, cutting
+  a release, or finding where something lives.
   Loads the multi-repo map, the framework dependency graph, the release ripple, the
   repo router, and the Type A vs Type B extension decision gate. Keywords: QaaS,
   TheSmokeTeam, QaaS.Framework, Runner, Mocker, PackageMirror, monorepo, hook,
@@ -31,6 +32,10 @@ repo belongs to that repo's own docs.
    fact is not in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
+4. **SPECIFY BEFORE IMPLEMENTING.** For a feature or bugfix, use
+   `plan-qaas-change` to establish current state, desired state, acceptance
+   criteria, exact test-first steps, and an independent `APPROVED` review before
+   editing production code. Revalidate a plan when an inspected repository moves.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -92,6 +97,10 @@ wiring (factory vs switch vs builder) is NOT the discriminator.
 
 Before claiming any change works, run these — evidence, not belief:
 
+- **Strict SDD / plan gate.** Do not begin a feature or bugfix from an informal
+  checklist. Produce and review a QaaS Change Specification and Implementation
+  Plan with verified repositories, commits, files, symbols, tests, impact, and
+  release work. `NEEDS_DECISION`, `BLOCKED`, and `STALE` are stop states.
 - **TDD / verify in-repo.** Add or update a test in the repo's `*.Tests` project
   for the behavior you changed, then run that repo's real commands from its
   `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
@@ -107,6 +116,8 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Routing — which skill / repo for a task
 
+- "plan/design/implement a QaaS feature or bugfix" → `plan-qaas-change` first;
+  implementation may start only from a current `APPROVED` plan.
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
@@ -116,8 +127,9 @@ Before claiming any change works, run these — evidence, not belief:
 ## Done when
 
 You have (a) identified the correct repo(s) for the task, (b) classified any
-extension work as Type A or Type B, and (c) read the relevant in-tree `CLAUDE.md`
-before proposing changes.
+extension work as Type A or Type B, (c) read the relevant in-tree `CLAUDE.md`,
+and (d) for feature/bugfix work, produced a current independently reviewed plan
+before proposing code changes.
 
 ## Failure modes
 
@@ -125,3 +137,4 @@ before proposing changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
+- Editing code from a vague, unreviewed, blocked, or stale plan.

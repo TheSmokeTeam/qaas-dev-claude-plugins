@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan QaaS Change"
+  short_description: "Prepare reviewed QaaS implementation plans"
+  default_prompt: "Use $plan-qaas-change to prepare and review an exact implementation plan for this QaaS feature or bugfix."

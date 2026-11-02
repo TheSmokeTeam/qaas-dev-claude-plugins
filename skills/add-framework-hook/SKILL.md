@@ -28,19 +28,23 @@ Type B; use `extend-framework-core`.
 
 ## Workflow
 
-1. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
+1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
+   The plan must verify the target Common repository, SDK contract, discovery
+   behavior, exact files/symbols, tests, and release follow-up. Stop on
+   `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+2. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
    `project_specs.md` first** — they define the exact base classes, config-object
    convention, naming, and `dotnet build/test` commands. Do not guess signatures.
-2. Implement the contract + its config object following the existing siblings in
+3. Implement the contract + its config object following the existing siblings in
    that repo (e.g. mirror an existing assertion's structure).
-3. Add tests in the repo's `*.Tests` project (the repos use xUnit/NUnit; follow
+4. Add tests in the repo's `*.Tests` project (the repos use xUnit/NUnit; follow
    the sibling tests).
-4. Build & test locally with the commands from that repo's `CLAUDE.md`
+5. Build & test locally with the commands from that repo's `CLAUDE.md`
    (typically `dotnet build <sln>` / `dotnet test <sln>`), then `csharpier`.
-5. The hook is selected by **string name in YAML**; confirm the discovery rules in
+6. The hook is selected by **string name in YAML**; confirm the discovery rules in
    `QaaS.Framework.Providers/project_specs.md` (priority: `QaaS.*`=0, `Common.*`=1,
    others=2; unique `FullName` else simple `Type.Name`).
-6. **Release ripple:** a new/bumped `Common.*` version → restore artifact →
+7. **Release ripple:** a new/bumped `Common.*` version → restore artifact →
    `PackageMirror` sync → regenerated `qaas-docs` page. Hand off to the
    `release-and-mirror` skill for that flow.
 
@@ -56,3 +60,4 @@ own build and test commands pass, and you have noted the release-ripple follow-u
 - Inventing a base-class or config signature instead of reading the repo's
   `CLAUDE.md`/siblings.
 - A `Common.*` package that depends on framework internals beyond the SDK contract.
+- Starting implementation from an unreviewed or stale plan.
