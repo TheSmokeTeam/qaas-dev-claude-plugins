@@ -41,7 +41,31 @@ for agent in "$ROOT"/agents/*.md; do
   echo "$fm" | grep -Eq "^description: *([>|].*|\S.+)" || err "$agent: missing description"
 done
 
-# 4. Referenced URLs resolve (skipped when OFFLINE=1).
+# 4. Planning agents are read-only at the direct editing-tool boundary.
+for name in qaas-change-planner qaas-plan-reviewer; do
+  agent="$ROOT/agents/$name.md"
+  [ -f "$agent" ] || { err "missing planning agent: $agent"; continue; }
+  fm="$(awk 'NR==1&&$0=="---"{f=1;next} f&&$0=="---"{exit} f' "$agent")"
+  echo "$fm" | grep -Eq '^disallowedTools:.*\bWrite\b' \
+    || err "$agent: must disallow Write"
+  echo "$fm" | grep -Eq '^disallowedTools:.*\bEdit\b' \
+    || err "$agent: must disallow Edit"
+done
+
+# 5. Every skill is included in the portable AGENTS.md generator.
+for skill in "$ROOT"/skills/*/SKILL.md; do
+  [ -f "$skill" ] || continue
+  dir="$(basename "$(dirname "$skill")")"
+  grep -Fq "\"$dir\"" "$ROOT/scripts/build-agents-md.sh" \
+    || err "build-agents-md.sh omits skill: $dir"
+done
+
+# 6. Deterministic plan-validator unit tests.
+if ! (cd "$ROOT/skills/plan-qaas-change/scripts" && python3 -m unittest -q test_validate_plan.py); then
+  err "plan validator unit tests failed"
+fi
+
+# 7. Referenced URLs resolve (skipped when OFFLINE=1).
 if [ "${OFFLINE:-0}" != "1" ]; then
   while read -r url; do
     code="$(curl -s -o /dev/null -w '%{http_code}' -L --max-time 15 "$url" || echo 000)"

@@ -1,0 +1,63 @@
+name: plugin-evals
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_model:
+        description: Full Claude model ID for the agent under test
+        required: true
+        type: string
+      judge_model:
+        description: Full Claude model ID for LLM graders
+        required: true
+        type: string
+      runs:
+        description: Runs per case and arm
+        required: true
+        default: "3"
+        type: string
+      threshold:
+        description: Required with-plugin score for every case
+        required: true
+        default: "0.9"
+        type: string
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require evaluation credentials
+        run: test -n "$ANTHROPIC_API_KEY"
+
+      - name: Install Claude Code
+        run: npm install --global @anthropic-ai/claude-code
+
+      - name: Validate plugin structure
+        run: claude plugin validate .
+
+      - name: Run isolated behavioral evals
+        run: |
+          mkdir -p evals/results
+          claude plugin eval . \
+            --scaffold \
+            --trust-plugin \
+            --model "${{ inputs.agent_model }}" \
+            --judge-model "${{ inputs.judge_model }}" \
+            --runs "${{ inputs.runs }}" \
+            --ablation with-without \
+            --threshold "${{ inputs.threshold }}" \
+            --max-cost-usd 30 \
+            --no-publish \
+            --json evals/results/ci.json
+
+      - name: Upload evaluation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qaas-platform-dev-plugin-evals
+          path: evals/results/

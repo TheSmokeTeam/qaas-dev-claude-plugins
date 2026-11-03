@@ -16,6 +16,34 @@ monorepo) — NOT author QaaS tests with it (that is a separate, end-user concer
 This plugin owns the knowledge that lives *between* repos; everything inside a
 repo belongs to that repo's own docs.
 
+## Step 1 — Know QaaS (mandatory ecosystem context)
+
+Run this stage before routing, planning, implementing, verifying, or releasing a
+QaaS platform change. Its purpose is to give the agent a correct working mental
+model of the QaaS ecosystem. It is context acquisition, not an implementation
+plan and not permission to edit code.
+
+Build a concise **Know QaaS Context Brief** for the raw request:
+
+- **Platform scope:** confirm that the request concerns developing the QaaS
+  platform rather than authoring tests with QaaS.
+- **Ecosystem location:** identify the affected capability and likely owning and
+  consuming repositories without claiming unverified code-level details.
+- **Dependency position:** explain where the capability sits in the framework
+  dependency graph and which upstream/downstream relationships matter.
+- **Extension model:** classify Type A, Type B, existing behavior, or not yet
+  classifiable, with the ownership reason for that classification.
+- **Release ripple:** state the likely package, PackageMirror, schema, docs, and
+  downstream implications, or explain why they do not apply.
+- **Authority map:** name the repository instructions, source, live docs, and
+  knowledge-graph evidence that the next stage must inspect.
+- **Known unknowns:** record missing ecosystem facts explicitly; never fill them
+  from memory.
+
+Keep the brief proportional to the request. Pass it intact to the next stage and
+refresh it when scope, classification, or repository evidence changes. Do not
+route a change request or begin detailed source planning until this brief exists.
+
 ## Constitution (non-negotiable)
 
 1. **DELEGATE IN-REPO.** Most implementation repos (Framework, Runner, Mocker,
@@ -29,6 +57,10 @@ repo belongs to that repo's own docs.
    fact is not in front of you, say what is missing and stop.
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
+4. **SPECIFY BEFORE IMPLEMENTING.** For a feature or bugfix, use
+   `plan-qaas-change` to establish current state, desired state, acceptance
+   criteria, exact test-first steps, and an independent `APPROVED` review before
+   editing production code. Revalidate a plan when an inspected repository moves.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -90,6 +122,10 @@ wiring (factory vs switch vs builder) is NOT the discriminator.
 
 Before claiming any change works, run these — evidence, not belief:
 
+- **Strict SDD / plan gate.** Do not begin a feature or bugfix from an informal
+  checklist. Produce and review a QaaS Change Specification and Implementation
+  Plan with verified repositories, commits, files, symbols, tests, impact, and
+  release work. `NEEDS_DECISION`, `BLOCKED`, and `STALE` are stop states.
 - **TDD / verify in-repo.** Add or update a test in the repo's `*.Tests` project
   for the behavior you changed, then run that repo's real commands from its
   `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
@@ -105,6 +141,11 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Routing — which skill / repo for a task
 
+Route only after completing the Know QaaS Context Brief. Routing chooses the
+next workflow; it does not replace ecosystem understanding.
+
+- "plan/design/implement a QaaS feature or bugfix" → `plan-qaas-change` first;
+  implementation may start only from a current `APPROVED` plan.
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
@@ -113,9 +154,10 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Done when
 
-You have (a) identified the correct repo(s) for the task, (b) classified any
-extension work as Type A or Type B, and (c) read the relevant in-tree `CLAUDE.md`
-before proposing changes.
+The downstream agent has a concise Know QaaS Context Brief, the correct next
+workflow is selected, the relevant in-tree instructions are identified, and no
+ecosystem claim depends on unverified memory. For feature/bugfix work, planning
+and implementation remain separate later stages.
 
 ## Failure modes
 
@@ -123,6 +165,215 @@ before proposing changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
+- Treating Know QaaS as a repository lookup or plan instead of ecosystem context.
+- Routing from keywords before understanding ownership, dependencies, and ripple.
+- Editing code from a vague, unreviewed, blocked, or stale plan.
+
+---
+
+
+# Find QaaS Knowledge (evidence-or-silence router)
+
+Resolve any "where is X / which doc covers Y" question to a concrete source. Never
+answer QaaS specifics from memory.
+
+## Resolution order
+
+1. **In-tree repo docs (authoritative for in-repo detail).** Every `TheSmokeTeam`
+   repo has a root `CLAUDE.md` and per-project `project_specs.md`. For code-level
+   questions, open the owning repo and read these first. Map of owners:
+   - hook contracts, protocols, policies, serialization, providers, config loader,
+     executions → `QaaS.Framework` (per-project `project_specs.md`).
+   - a specific assertion/generator/probe/processor → the matching `QaaS.Common.*`.
+   - runner/mocker behavior → `QaaS.Runner` / `QaaS.Mocker`.
+   - release/mirror/schemas → `QaaS.PackageMirror`.
+2. **Live docs (authoritative for user-facing config).** `https://docs.qaas.online/`
+   (regenerated by `QaaS.Docs.Generator`). Per-hook `overview` / `yamlView` /
+   `tableView` pages and `_generated/schemas/*` are ground truth for YAML shapes.
+3. **Source relationships** → use `qaas-knowledge-graph` for architecture,
+   dependencies, call flows, ownership, impact, and paths.
+4. **Cross-repo seams** → this plugin's other skills (`qaas-platform-overview`,
+   `add-framework-hook`, `extend-framework-core`, `release-and-mirror`).
+5. **Not found?** State exactly what is missing and stop. Do not invent.
+
+## Done when
+
+You have cited a concrete source (a repo file path, docs URL, or graph provenance
+location) for the answer, or explicitly reported what could not be found.
+
+## Failure modes
+
+- Answering from stale training memory instead of the live source.
+- Pointing at this plugin for in-repo detail that belongs in a repo's CLAUDE.md.
+
+---
+
+
+# Query the QaaS Knowledge Graph
+
+Use the committed graph from `TheSmokeTeam/qaas-graph` as the only graph source.
+Never build a graph from the open repository.
+
+## Query workflow
+
+1. Select BFS for broad architecture and relationship questions. Select `--dfs`
+   only when the user asks to trace a chain or flow.
+2. Run the bundled wrapper from the user's current workspace:
+
+   ```bash
+   python3 <skill-directory>/scripts/qaas_graph.py query \
+     --workspace "$PWD" \
+     --question "<question>" \
+     --budget 2000
+   ```
+
+   Add `--dfs` for a trace. Pass a different absolute directory to `--workspace`
+   only when the opened workspace cannot be inferred from the current directory.
+3. Treat a freshness warning as part of the answer: the cached graph was valid,
+   but GitHub could not be checked. Treat any other wrapper error as blocking.
+4. Answer only from the returned nodes and edges. Cite concrete evidence as
+   `repo/source_file:source_location`. State when the graph does not contain
+   enough evidence; never invent a relationship.
+
+The wrapper places `qaas-graph` beside an opened Git repository, or directly
+under a non-Git workspace root. It uses a shallow, blob-filtered sparse checkout
+of canonical `main` that materializes only `graphify-out/graph.json` and
+`requirements.txt`. It updates only a clean cache that it previously marked as
+managed, and never overwrites another checkout.
+
+## Hard boundaries
+
+- Never run Graphify `extract`, `update`, `cluster-only`, `add`, `watch`, or an
+  export command for this workflow.
+- Never run `save-result` or `reflect`; do not add memory, vocabulary, cache, or
+  learning files to the canonical clone.
+- Never scan local QaaS repositories or create `graphify-out` in them.
+- Never edit, regenerate, recluster, enrich, or directly write the cached graph.
+- Do not install Graphify automatically. If the wrapper reports it missing,
+  show the pinned requirement path it provides and request permission before
+  changing the machine's toolchain.
+
+---
+
+
+# Plan a QaaS Change
+
+Prepare a QaaS Change Specification and Implementation Plan before editing
+production code. Make the result executable by a developer who is only
+semi-fluent in the QaaS codebase without copying volatile in-repo documentation
+into this plugin.
+
+## Non-negotiable boundaries
+
+- Do not implement the feature or bugfix while planning.
+- Do not edit source, tests, configuration, manifests, or generated files.
+- Require a Know QaaS Context Brief before detailed planning. The brief must
+  cover platform scope, ecosystem location, dependency position, extension
+  model, release ripple, authority map, and known unknowns.
+- Read each owning repository's `CLAUDE.md` first, then the relevant
+  `project_specs.md`; use `README.md` only where the repository has no
+  `CLAUDE.md`.
+- Use `qaas-platform-overview` to establish repository ownership, Type A/Type B
+  classification, and release ripple before choosing an implementation.
+- Use `qaas-knowledge-graph` for cross-repo relationships and impact, then verify
+  implementation details in source. A graph edge is not a substitute for reading
+  the owning code and specifications.
+- Never invent a repository, path, symbol, signature, command, dependency, or
+  configuration key. Missing evidence makes the plan `BLOCKED`, not approximate.
+- Do not require or alter another developer plugin. Use namespaced QaaS surfaces
+  and native tools when optional external tooling is absent.
+
+## Workflow
+
+1. **Ingest Know QaaS.** Apply `qaas-platform-overview` to the raw request and
+   build the mandatory Know QaaS Context Brief. If a brief already exists,
+   verify that it matches the current request and evidence; refresh it otherwise.
+   Do not reduce this step to choosing a repository.
+2. **Set scope.** Restate the request, observable outcome, constraints, non-goals,
+   and complexity: `small`, `standard`, or `cross-repo`. Ask only questions whose
+   answers materially change the design; record other assumptions explicitly.
+3. **Capture provenance.** Record every inspected repository and its full commit
+   SHA. The plan becomes `STALE` when an affected repository moves before
+   implementation.
+4. **Build the current-state model.** Locate entry points, implementations,
+   callers, configurations, tests, generated artifacts, docs, and release edges.
+   Cite each important fact as `repo/path:line` or graph provenance.
+5. **Apply the change-kind gate.**
+   - Bugfix: establish reproduction conditions, observed versus expected result,
+     failure mechanism, evidence-backed root cause, and a regression test that
+     fails before the fix.
+   - Feature: establish use cases, the verified integration seam, a sibling
+     convention, material alternatives, and compatibility implications.
+6. **Specify the desired state.** Write implementation-independent invariants and
+   numbered acceptance criteria (`AC-1`, `AC-2`, ...), including error and boundary
+   behavior.
+7. **Map impact.** Address API/contracts, configuration/schema, runtime selection,
+   callers, tests, docs, packaging/release, compatibility/migration, security,
+   performance, and observability. Use an evidence-backed `N/A` where irrelevant.
+8. **Draft test-first implementation steps.** Start with the failing behavioral
+   test when practical. Every step must name a repository, file, symbol, exact
+   behavior change, convention to follow, dependencies, acceptance criteria,
+   test IDs, and verification command. Do not write "relevant files", "as
+   needed", or another discovery placeholder.
+9. **Build traceability.** Map every acceptance criterion to evidence,
+   implementation steps, tests, and final verification. Include focused and full
+   repository commands from repository documentation.
+10. **Review independently.** Delegate the finished draft plus the raw request to
+    `qaas-plan-reviewer`. Do not provide private planner conclusions. Resolve all
+    critical and major findings, record their dispositions, and request another
+    review after material changes.
+11. **Gate the result.** Emit exactly one status:
+    - `APPROVED`: reviewer approved, all evidence and traceability exist, no
+      implementation-changing decision remains, and inspected commits still
+      match.
+    - `NEEDS_DECISION`: a user/product/architecture choice changes the plan.
+    - `BLOCKED`: required repository evidence, reproduction, root cause, or
+      integration seam is unavailable.
+    - `STALE`: an inspected repository changed after review; revalidate only the
+      affected evidence and steps.
+
+## Output contract
+
+Read [references/plan-template.md](references/plan-template.md) and follow it.
+For independent review, use
+[references/review-rubric.md](references/review-rubric.md).
+
+Return the complete Markdown plan in the conversation by default. Save it only
+when the user requests a persistent artifact; never place planning artifacts in a
+QaaS source repository merely for convenience.
+
+Before marking a saved plan `APPROVED`, run:
+
+```bash
+python3 <skill-directory>/scripts/validate_plan.py <plan.md>
+```
+
+For a conversation-only plan, apply the same checks manually. The validator is a
+structural gate; reviewer approval supplies the semantic gate.
+
+## Done when
+
+The plan carries the Know QaaS Context Brief forward, distinguishes
+fact/inference/assumption/decision, specifies current and desired state, cites
+live evidence, maps acceptance criteria through tests and implementation, covers
+cross-repo and release effects, records repository commits, and carries an
+independent verdict. No production change has been made.
+
+## Failure modes
+
+- Producing a generic checklist that forces the implementer to rediscover files,
+  symbols, or architecture.
+- Starting detailed planning without first understanding the QaaS ecosystem or
+  replacing the Know QaaS Context Brief with a one-line repository route.
+- Calling a bug hypothesis the root cause without reproduction or source
+  evidence.
+- Designing a feature before locating its actual integration seam and sibling
+  conventions.
+- Treating knowledge-graph output as sufficient code-level evidence.
+- Approving a plan with unresolved decisions, placeholders, missing tests, or
+  stale repository commits.
+- Invoking generic commands, installing dependencies, or changing hooks/settings
+  owned by another plugin.
 
 ---
 
@@ -144,19 +395,23 @@ Type B; use `extend-framework-core`.
 
 ## Workflow
 
-1. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
+1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
+   The plan must verify the target Common repository, SDK contract, discovery
+   behavior, exact files/symbols, tests, and release follow-up. Stop on
+   `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+2. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
    `project_specs.md` first** — they define the exact base classes, config-object
    convention, naming, and `dotnet build/test` commands. Do not guess signatures.
-2. Implement the contract + its config object following the existing siblings in
+3. Implement the contract + its config object following the existing siblings in
    that repo (e.g. mirror an existing assertion's structure).
-3. Add tests in the repo's `*.Tests` project (the repos use xUnit/NUnit; follow
+4. Add tests in the repo's `*.Tests` project (the repos use xUnit/NUnit; follow
    the sibling tests).
-4. Build & test locally with the commands from that repo's `CLAUDE.md`
+5. Build & test locally with the commands from that repo's `CLAUDE.md`
    (typically `dotnet build <sln>` / `dotnet test <sln>`), then `csharpier`.
-5. The hook is selected by **string name in YAML**; confirm the discovery rules in
+6. The hook is selected by **string name in YAML**; confirm the discovery rules in
    `QaaS.Framework.Providers/project_specs.md` (priority: `QaaS.*`=0, `Common.*`=1,
    others=2; unique `FullName` else simple `Type.Name`).
-6. **Release ripple:** a new/bumped `Common.*` version → restore artifact →
+7. **Release ripple:** a new/bumped `Common.*` version → restore artifact →
    `PackageMirror` sync → regenerated `qaas-docs` page. Hand off to the
    `release-and-mirror` skill for that flow.
 
@@ -172,6 +427,7 @@ own build and test commands pass, and you have noted the release-ripple follow-u
 - Inventing a base-class or config signature instead of reading the repo's
   `CLAUDE.md`/siblings.
 - A `Common.*` package that depends on framework internals beyond the SDK contract.
+- Starting implementation from an unreviewed or stale plan.
 
 ---
 
@@ -197,21 +453,25 @@ no reflection/DLL-drop path exists; you must edit the framework.
 
 ## Workflow
 
-1. **Open `QaaS.Framework` and read the root `CLAUDE.md` plus the target
+1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
+   The plan must verify the owning framework project, selection point, exact
+   files/symbols, tests, compatibility, downstream consumers, and release order.
+   Stop on `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+2. **Open `QaaS.Framework` and read the root `CLAUDE.md` plus the target
    project's `project_specs.md` first.** Confirm the family is still Type B and
    learn the exact abstractions, factory/builder, and "Forbidden in this project"
    rules. Do not guess.
-2. Implement the new member in the correct project, registering it in its
+3. Implement the new member in the correct project, registering it in its
    selection point:
    - Protocol/serializer → add the implementation + wire it into the relevant
      factory keyed by its `SerializationType`/config record.
    - Policy → add a `*PolicyConfig : IPolicyConfig`, a `*Policy : Policy` with an
      `Index`, and a `case` in BOTH `PolicyBuilder.Configure` and
      `PolicyBuilder.Build`.
-3. Add tests in the matching `QaaS.Framework.*.Tests` project, following siblings.
-4. Build & test with the commands in `QaaS.Framework/CLAUDE.md`
+4. Add tests in the matching `QaaS.Framework.*.Tests` project, following siblings.
+5. Build & test with the commands in `QaaS.Framework/CLAUDE.md`
    (`dotnet build QaaS.Framework.sln` / `dotnet test ...`), then `csharpier`.
-5. **Release ripple (mandatory):** a new `QaaS.Framework` version ripples to ALL
+6. **Release ripple (mandatory):** a new `QaaS.Framework` version ripples to ALL
    downstream repos (Common.*, Runner, Mocker, PackageMirror, qaas-docs). Hand off
    to `release-and-mirror`.
 
@@ -227,6 +487,7 @@ downstream release ripple is noted.
   reflection-discovered — it will never be found).
 - Forgetting one of the two `PolicyBuilder` switches (`Configure` AND `Build`).
 - Shipping a framework change without planning the downstream release ripple.
+- Starting implementation from an unreviewed or stale plan.
 
 ---
 
@@ -298,41 +559,4 @@ assumption.
 - Tagging without the `restore-artifact-metadata.json` → mirror skips the repo.
 - Assuming the mirror auto-ran; confirm the `sync-packages.yml` run.
 - Hand-editing `packages/` or `schemas/` instead of letting the sync rebuild them.
-
----
-
-
-# Find QaaS Knowledge (evidence-or-silence router)
-
-Resolve any "where is X / which doc covers Y" question to a concrete source. Never
-answer QaaS specifics from memory.
-
-## Resolution order
-
-1. **In-tree repo docs (authoritative for in-repo detail).** Every `TheSmokeTeam`
-   repo has a root `CLAUDE.md` and per-project `project_specs.md`. For code-level
-   questions, open the owning repo and read these first. Map of owners:
-   - hook contracts, protocols, policies, serialization, providers, config loader,
-     executions → `QaaS.Framework` (per-project `project_specs.md`).
-   - a specific assertion/generator/probe/processor → the matching `QaaS.Common.*`.
-   - runner/mocker behavior → `QaaS.Runner` / `QaaS.Mocker`.
-   - release/mirror/schemas → `QaaS.PackageMirror`.
-2. **Live docs (authoritative for user-facing config).** `https://docs.qaas.online/`
-   (regenerated by `QaaS.Docs.Generator`). Per-hook `overview` / `yamlView` /
-   `tableView` pages and `_generated/schemas/*` are ground truth for YAML shapes.
-3. **Source relationships** → use `qaas-knowledge-graph` for architecture,
-   dependencies, call flows, ownership, impact, and paths.
-4. **Cross-repo seams** → this plugin's other skills (`qaas-platform-overview`,
-   `add-framework-hook`, `extend-framework-core`, `release-and-mirror`).
-5. **Not found?** State exactly what is missing and stop. Do not invent.
-
-## Done when
-
-You have cited a concrete source (a repo file path, docs URL, or graph provenance
-location) for the answer, or explicitly reported what could not be found.
-
-## Failure modes
-
-- Answering from stale training memory instead of the live source.
-- Pointing at this plugin for in-repo detail that belongs in a repo's CLAUDE.md.
 

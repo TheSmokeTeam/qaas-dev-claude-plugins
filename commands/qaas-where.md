@@ -5,9 +5,11 @@ argument-hint: "<task>  e.g. 'add a Kafka retry assertion' | 'add an Oracle prot
 
 Route this QaaS platform-development task: $ARGUMENTS
 
-Apply the `qaas-platform-overview` skill's router and Type A/B decision gate:
-1. Identify the owning repo(s) under https://github.com/TheSmokeTeam.
-2. If it is an extension, classify Type A (reflection hook → `add-framework-hook`)
+Apply `qaas-platform-overview` before routing:
+1. Build a concise Know QaaS Context Brief that locates the capability in the
+   ecosystem, dependency graph, extension model, and release ripple.
+2. Identify the owning repo(s) under https://github.com/TheSmokeTeam.
+3. If it is an extension, classify Type A (reflection hook → `add-framework-hook`)
    vs Type B (compiled core → `extend-framework-core`).
-3. Name the in-tree `CLAUDE.md` / `project_specs.md` to read first.
-4. If anything is unknown, say what is missing — do not invent. (docs-or-silence)
+4. Name the in-tree `CLAUDE.md` / `project_specs.md` to read first.
+5. If anything is unknown, say what is missing — do not invent. (docs-or-silence)

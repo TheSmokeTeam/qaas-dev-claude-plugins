@@ -32,21 +32,25 @@ no reflection/DLL-drop path exists; you must edit the framework.
 
 ## Workflow
 
-1. **Open `QaaS.Framework` and read the root `CLAUDE.md` plus the target
+1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
+   The plan must verify the owning framework project, selection point, exact
+   files/symbols, tests, compatibility, downstream consumers, and release order.
+   Stop on `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+2. **Open `QaaS.Framework` and read the root `CLAUDE.md` plus the target
    project's `project_specs.md` first.** Confirm the family is still Type B and
    learn the exact abstractions, factory/builder, and "Forbidden in this project"
    rules. Do not guess.
-2. Implement the new member in the correct project, registering it in its
+3. Implement the new member in the correct project, registering it in its
    selection point:
    - Protocol/serializer → add the implementation + wire it into the relevant
      factory keyed by its `SerializationType`/config record.
    - Policy → add a `*PolicyConfig : IPolicyConfig`, a `*Policy : Policy` with an
      `Index`, and a `case` in BOTH `PolicyBuilder.Configure` and
      `PolicyBuilder.Build`.
-3. Add tests in the matching `QaaS.Framework.*.Tests` project, following siblings.
-4. Build & test with the commands in `QaaS.Framework/CLAUDE.md`
+4. Add tests in the matching `QaaS.Framework.*.Tests` project, following siblings.
+5. Build & test with the commands in `QaaS.Framework/CLAUDE.md`
    (`dotnet build QaaS.Framework.sln` / `dotnet test ...`), then `csharpier`.
-5. **Release ripple (mandatory):** a new `QaaS.Framework` version ripples to ALL
+6. **Release ripple (mandatory):** a new `QaaS.Framework` version ripples to ALL
    downstream repos (Common.*, Runner, Mocker, PackageMirror, qaas-docs). Hand off
    to `release-and-mirror`.
 
@@ -62,3 +66,4 @@ downstream release ripple is noted.
   reflection-discovered — it will never be found).
 - Forgetting one of the two `PolicyBuilder` switches (`Configure` AND `Build`).
 - Shipping a framework change without planning the downstream release ripple.
+- Starting implementation from an unreviewed or stale plan.
