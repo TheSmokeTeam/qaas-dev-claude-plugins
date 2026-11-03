@@ -16,6 +16,34 @@ monorepo) — NOT author QaaS tests with it (that is a separate, end-user concer
 This plugin owns the knowledge that lives *between* repos; everything inside a
 repo belongs to that repo's own docs.
 
+## Step 1 — Know QaaS (mandatory ecosystem context)
+
+Run this stage before routing, planning, implementing, verifying, or releasing a
+QaaS platform change. Its purpose is to give the agent a correct working mental
+model of the QaaS ecosystem. It is context acquisition, not an implementation
+plan and not permission to edit code.
+
+Build a concise **Know QaaS Context Brief** for the raw request:
+
+- **Platform scope:** confirm that the request concerns developing the QaaS
+  platform rather than authoring tests with QaaS.
+- **Ecosystem location:** identify the affected capability and likely owning and
+  consuming repositories without claiming unverified code-level details.
+- **Dependency position:** explain where the capability sits in the framework
+  dependency graph and which upstream/downstream relationships matter.
+- **Extension model:** classify Type A, Type B, existing behavior, or not yet
+  classifiable, with the ownership reason for that classification.
+- **Release ripple:** state the likely package, PackageMirror, schema, docs, and
+  downstream implications, or explain why they do not apply.
+- **Authority map:** name the repository instructions, source, live docs, and
+  knowledge-graph evidence that the next stage must inspect.
+- **Known unknowns:** record missing ecosystem facts explicitly; never fill them
+  from memory.
+
+Keep the brief proportional to the request. Pass it intact to the next stage and
+refresh it when scope, classification, or repository evidence changes. Do not
+route a change request or begin detailed source planning until this brief exists.
+
 ## Constitution (non-negotiable)
 
 1. **DELEGATE IN-REPO.** Most implementation repos (Framework, Runner, Mocker,
@@ -113,6 +141,9 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Routing — which skill / repo for a task
 
+Route only after completing the Know QaaS Context Brief. Routing chooses the
+next workflow; it does not replace ecosystem understanding.
+
 - "plan/design/implement a QaaS feature or bugfix" → `plan-qaas-change` first;
   implementation may start only from a current `APPROVED` plan.
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
@@ -123,10 +154,10 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Done when
 
-You have (a) identified the correct repo(s) for the task, (b) classified any
-extension work as Type A or Type B, (c) read the relevant in-tree `CLAUDE.md`,
-and (d) for feature/bugfix work, produced a current independently reviewed plan
-before proposing code changes.
+The downstream agent has a concise Know QaaS Context Brief, the correct next
+workflow is selected, the relevant in-tree instructions are identified, and no
+ecosystem claim depends on unverified memory. For feature/bugfix work, planning
+and implementation remain separate later stages.
 
 ## Failure modes
 
@@ -134,6 +165,8 @@ before proposing code changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
+- Treating Know QaaS as a repository lookup or plan instead of ecosystem context.
+- Routing from keywords before understanding ownership, dependencies, and ripple.
 - Editing code from a vague, unreviewed, blocked, or stale plan.
 
 ---
@@ -234,6 +267,9 @@ into this plugin.
 
 - Do not implement the feature or bugfix while planning.
 - Do not edit source, tests, configuration, manifests, or generated files.
+- Require a Know QaaS Context Brief before detailed planning. The brief must
+  cover platform scope, ecosystem location, dependency position, extension
+  model, release ripple, authority map, and known unknowns.
 - Read each owning repository's `CLAUDE.md` first, then the relevant
   `project_specs.md`; use `README.md` only where the repository has no
   `CLAUDE.md`.
@@ -249,9 +285,10 @@ into this plugin.
 
 ## Workflow
 
-1. **Ingest Know QaaS.** Reuse an existing evidence-backed repository route when
-   available. Otherwise apply `qaas-platform-overview` and
-   `find-qaas-knowledge` before continuing.
+1. **Ingest Know QaaS.** Apply `qaas-platform-overview` to the raw request and
+   build the mandatory Know QaaS Context Brief. If a brief already exists,
+   verify that it matches the current request and evidence; refresh it otherwise.
+   Do not reduce this step to choosing a repository.
 2. **Set scope.** Restate the request, observable outcome, constraints, non-goals,
    and complexity: `small`, `standard`, or `cross-repo`. Ask only questions whose
    answers materially change the design; record other assumptions explicitly.
@@ -316,16 +353,18 @@ structural gate; reviewer approval supplies the semantic gate.
 
 ## Done when
 
-The plan teaches the relevant QaaS context, distinguishes fact/inference/
-assumption/decision, specifies current and desired state, cites live evidence,
-maps acceptance criteria through tests and implementation, covers cross-repo and
-release effects, records repository commits, and carries an independent verdict.
-No production change has been made.
+The plan carries the Know QaaS Context Brief forward, distinguishes
+fact/inference/assumption/decision, specifies current and desired state, cites
+live evidence, maps acceptance criteria through tests and implementation, covers
+cross-repo and release effects, records repository commits, and carries an
+independent verdict. No production change has been made.
 
 ## Failure modes
 
 - Producing a generic checklist that forces the implementer to rediscover files,
   symbols, or architecture.
+- Starting detailed planning without first understanding the QaaS ecosystem or
+  replacing the Know QaaS Context Brief with a one-line repository route.
 - Calling a bug hypothesis the root cause without reproduction or source
   evidence.
 - Designing a feature before locating its actual integration seam and sibling

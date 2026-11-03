@@ -5,7 +5,7 @@ An `APPROVED` plan must pass `scripts/validate_plan.py` when saved.
 
 ```markdown
 ---
-schema_version: "1"
+schema_version: "2"
 change_id: qaas-<short-slug>
 title: <feature or bugfix title>
 change_kind: feature | bugfix
@@ -21,20 +21,34 @@ review:
 
 # QaaS Change Specification and Implementation Plan
 
-## 1. Developer summary
+## 1. Know QaaS Context Brief
+
+### Platform scope
+### Ecosystem location
+### Dependency position
+### Extension model
+### Release ripple
+### Authority map
+### Known unknowns
+
+Explain the QaaS ecosystem relevant to this request before narrowing into
+implementation detail. This is the context handoff from the mandatory Know QaaS
+stage, not a duplicate implementation plan.
+
+## 2. Developer summary
 
 Explain what changes, why it belongs in these repositories, how the affected
 QaaS flow works, and what success looks like in language useful to a developer
 who is only semi-fluent in QaaS.
 
-## 2. Request
+## 3. Request
 
 ### Problem or use case
 ### Constraints
 ### Non-goals
 ### User-visible behavior
 
-## 3. Current-state evidence
+## 4. Current-state evidence
 
 | ID | Kind | Fact | Evidence | Confidence |
 |---|---|---|---|---|
@@ -43,7 +57,7 @@ who is only semi-fluent in QaaS.
 Kinds: `fact`, `inference`, `assumption`, or `decision`. An assumption that
 changes implementation prevents approval.
 
-## 4. Current behavior
+## 5. Current behavior
 
 Describe the relevant control/data flow.
 
@@ -51,7 +65,7 @@ For a bugfix include reproduction conditions, observed and expected results,
 failure mechanism, and root cause. For a feature include use cases, integration
 seam, sibling convention, material alternatives, and selection rationale.
 
-## 5. Desired-state specification
+## 6. Desired-state specification
 
 ### Invariants
 
@@ -60,7 +74,7 @@ seam, sibling convention, material alternatives, and selection rationale.
 - AC-1: Given ..., when ..., then ...
 - AC-2: ...
 
-## 6. Impact map
+## 7. Impact map
 
 | Surface | Impact | Evidence or N/A reason |
 |---|---|---|
@@ -74,7 +88,7 @@ seam, sibling convention, material alternatives, and selection rationale.
 | Compatibility/migration | ... | ... |
 | Security/performance/observability | ... | ... |
 
-## 7. Exact implementation sequence
+## 8. Exact implementation sequence
 
 ### Step P1 — Add the failing behavioral test
 
@@ -100,13 +114,13 @@ seam, sibling convention, material alternatives, and selection rationale.
 - Tests: T-1, T-2
 - Verification command: `<command copied from repository docs>`
 
-## 8. Traceability matrix
+## 9. Traceability matrix
 
 | Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
 |---|---|---|---|---|
 | AC-1 | E-1 | P1, P2 | T-1 | ... |
 
-## 9. Test-first verification plan
+## 10. Test-first verification plan
 
 | Test ID | Level | Location | Scenario | Fails before? | Expected result |
 |---|---|---|---|---|---|
@@ -115,28 +129,28 @@ seam, sibling convention, material alternatives, and selection rationale.
 List focused tests, affected-project tests, full repository tests, formatting or
 static checks, and cross-repository verification when required.
 
-## 10. Release and rollout
+## 11. Release and rollout
 
 Cover versioning, downstream package-reference changes, PackageMirror,
 schema/docs regeneration, compatibility/migration, and rollback. Use
 evidence-backed `N/A` entries for a local change.
 
-## 11. Risks
+## 12. Risks
 
 | Risk | Likelihood | Impact | Mitigation | Verification |
 |---|---|---|---|---|
 
-## 12. Open decisions and missing evidence
+## 13. Open decisions and missing evidence
 
 None.
 
-## 13. Review record
+## 14. Review record
 
 | Finding | Severity | Disposition | Resulting plan change |
 |---|---|---|---|
 | None | — | — | Reviewer approved without findings |
 
-## 14. Implementation handoff
+## 15. Implementation handoff
 
 - Starting repository and file: ...
 - Repository order: ...

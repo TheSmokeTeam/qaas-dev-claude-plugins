@@ -19,20 +19,30 @@ ALLOWED_CLASSIFICATION = {
     "not-applicable",
 }
 REQUIRED_APPROVED_HEADINGS = [
-    "## 1. Developer summary",
-    "## 2. Request",
-    "## 3. Current-state evidence",
-    "## 4. Current behavior",
-    "## 5. Desired-state specification",
-    "## 6. Impact map",
-    "## 7. Exact implementation sequence",
-    "## 8. Traceability matrix",
-    "## 9. Test-first verification plan",
-    "## 10. Release and rollout",
-    "## 11. Risks",
-    "## 12. Open decisions and missing evidence",
-    "## 13. Review record",
-    "## 14. Implementation handoff",
+    "## 1. Know QaaS Context Brief",
+    "## 2. Developer summary",
+    "## 3. Request",
+    "## 4. Current-state evidence",
+    "## 5. Current behavior",
+    "## 6. Desired-state specification",
+    "## 7. Impact map",
+    "## 8. Exact implementation sequence",
+    "## 9. Traceability matrix",
+    "## 10. Test-first verification plan",
+    "## 11. Release and rollout",
+    "## 12. Risks",
+    "## 13. Open decisions and missing evidence",
+    "## 14. Review record",
+    "## 15. Implementation handoff",
+]
+KNOW_QAAS_SUBHEADINGS = [
+    "### Platform scope",
+    "### Ecosystem location",
+    "### Dependency position",
+    "### Extension model",
+    "### Release ripple",
+    "### Authority map",
+    "### Known unknowns",
 ]
 STEP_FIELDS = [
     "Repository",
@@ -107,8 +117,8 @@ def validate_text(text: str) -> list[str]:
         if not value:
             errors.append(f"frontmatter is missing {key}")
 
-    if values["schema_version"] not in {None, "1"}:
-        errors.append("schema_version must be \"1\"")
+    if values["schema_version"] not in {None, "2"}:
+        errors.append("schema_version must be \"2\"")
     if values["change_kind"] and values["change_kind"] not in ALLOWED_KIND:
         errors.append("change_kind must be feature or bugfix")
     if values["complexity"] and values["complexity"] not in ALLOWED_COMPLEXITY:
@@ -139,6 +149,22 @@ def validate_text(text: str) -> list[str]:
     for heading in REQUIRED_APPROVED_HEADINGS:
         if heading not in body:
             errors.append(f"approved plan is missing heading: {heading}")
+
+    know_qaas = _section(body, "## 1. Know QaaS Context Brief")
+    for index, heading in enumerate(KNOW_QAAS_SUBHEADINGS):
+        if heading not in know_qaas:
+            errors.append(f"Know QaaS Context Brief is missing heading: {heading}")
+            continue
+        content_start = know_qaas.find(heading) + len(heading)
+        content_end = (
+            know_qaas.find(KNOW_QAAS_SUBHEADINGS[index + 1], content_start)
+            if index + 1 < len(KNOW_QAAS_SUBHEADINGS)
+            else len(know_qaas)
+        )
+        if content_end == -1:
+            content_end = len(know_qaas)
+        if not know_qaas[content_start:content_end].strip():
+            errors.append(f"Know QaaS Context Brief has empty section: {heading}")
 
     verdicts = re.findall(r"(?m)^\s*verdict:\s*(\S+)\s*$", frontmatter)
     if "APPROVE" not in verdicts:
@@ -175,7 +201,7 @@ def validate_text(text: str) -> list[str]:
         if len(re.findall(rf"\b{re.escape(test_id)}\b", body)) < 2:
             errors.append(f"{test_id} must be referenced by an implementation step")
 
-    open_items = _section(body, "## 12. Open decisions and missing evidence")
+    open_items = _section(body, "## 13. Open decisions and missing evidence")
     normalized_open_items = re.sub(r"[\s.]", "", open_items).casefold()
     if normalized_open_items != "none":
         errors.append(

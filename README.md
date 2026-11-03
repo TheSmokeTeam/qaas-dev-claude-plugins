@@ -21,7 +21,7 @@ in-repo detail to each repo's own `CLAUDE.md`.
 
 | Surface | Purpose |
 |---|---|
-| `qaas-platform-overview` (always-on skill) | Repo map, dependency graph, release ripple, repo router, Type A/B decision gate. |
+| `qaas-platform-overview` (always-on skill) | Mandatory Know QaaS stage: builds the agent's ecosystem mental model before routing or planning. |
 | `plan-qaas-change` skill | Strict SDD: current/desired state, verified evidence, exact test-first steps, independent review, and stale-plan detection. |
 | `add-framework-hook` skill | Add a Type A reflection hook (assertion/generator/probe/processor → `Common.*`). |
 | `extend-framework-core` skill | Add a Type B compiled-core member (protocol/serializer/policy → `QaaS.Framework`). |
@@ -37,14 +37,18 @@ in-repo detail to each repo's own `CLAUDE.md`.
 
 ## Feature and bugfix flow
 
-1. **Know QaaS:** establish repository ownership, Type A/Type B classification,
-   live documentation, graph relationships, and release ripple.
-2. **Specify and plan:** model current and desired state, define acceptance
+1. **Know QaaS:** first build a concise ecosystem context brief—platform scope,
+   owning and consuming repositories, dependency position, Type A/Type B model,
+   release ripple, authoritative sources, and known unknowns. This step helps the
+   agent understand QaaS; it does not plan or edit the requested change.
+2. **Route:** select the correct repository and downstream skill from that
+   ecosystem understanding.
+3. **Specify and plan:** model current and desired state, define acceptance
    criteria, map impact, and write exact test-first steps.
-3. **Review:** independently verify paths, symbols, tests, dependencies, and
+4. **Review:** independently verify paths, symbols, tests, dependencies, and
    inspected commits. Implementation starts only from `APPROVED`; stop on
    `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
-4. **Implement and verify:** follow the approved plan and finish with the
+5. **Implement and verify:** follow the approved plan and finish with the
    read-only `qaas-verifier`.
 
 The QaaS commands and agents are namespaced and do not require, configure, or

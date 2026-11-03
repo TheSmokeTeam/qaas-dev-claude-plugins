@@ -21,6 +21,9 @@ into this plugin.
 
 - Do not implement the feature or bugfix while planning.
 - Do not edit source, tests, configuration, manifests, or generated files.
+- Require a Know QaaS Context Brief before detailed planning. The brief must
+  cover platform scope, ecosystem location, dependency position, extension
+  model, release ripple, authority map, and known unknowns.
 - Read each owning repository's `CLAUDE.md` first, then the relevant
   `project_specs.md`; use `README.md` only where the repository has no
   `CLAUDE.md`.
@@ -36,9 +39,10 @@ into this plugin.
 
 ## Workflow
 
-1. **Ingest Know QaaS.** Reuse an existing evidence-backed repository route when
-   available. Otherwise apply `qaas-platform-overview` and
-   `find-qaas-knowledge` before continuing.
+1. **Ingest Know QaaS.** Apply `qaas-platform-overview` to the raw request and
+   build the mandatory Know QaaS Context Brief. If a brief already exists,
+   verify that it matches the current request and evidence; refresh it otherwise.
+   Do not reduce this step to choosing a repository.
 2. **Set scope.** Restate the request, observable outcome, constraints, non-goals,
    and complexity: `small`, `standard`, or `cross-repo`. Ask only questions whose
    answers materially change the design; record other assumptions explicitly.
@@ -103,16 +107,18 @@ structural gate; reviewer approval supplies the semantic gate.
 
 ## Done when
 
-The plan teaches the relevant QaaS context, distinguishes fact/inference/
-assumption/decision, specifies current and desired state, cites live evidence,
-maps acceptance criteria through tests and implementation, covers cross-repo and
-release effects, records repository commits, and carries an independent verdict.
-No production change has been made.
+The plan carries the Know QaaS Context Brief forward, distinguishes
+fact/inference/assumption/decision, specifies current and desired state, cites
+live evidence, maps acceptance criteria through tests and implementation, covers
+cross-repo and release effects, records repository commits, and carries an
+independent verdict. No production change has been made.
 
 ## Failure modes
 
 - Producing a generic checklist that forces the implementer to rediscover files,
   symbols, or architecture.
+- Starting detailed planning without first understanding the QaaS ecosystem or
+  replacing the Know QaaS Context Brief with a one-line repository route.
 - Calling a bug hypothesis the root cause without reproduction or source
   evidence.
 - Designing a feature before locating its actual integration seam and sibling

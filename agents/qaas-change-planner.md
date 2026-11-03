@@ -36,18 +36,21 @@ implement the requested feature or bugfix.
 
 ## Method
 
-1. Consume the raw request and establish repository ownership, Type A/Type B
-   classification, and release ripple.
-2. For a bugfix, establish reproduction, failure mechanism, root cause, and a
+1. Consume the raw request and its Know QaaS Context Brief. If the brief is
+   missing, incomplete, or inconsistent with current evidence, apply
+   `qaas-platform-overview` and complete it before detailed planning.
+2. Use the brief to establish repository ownership, dependency position, Type
+   A/Type B classification, release ripple, authorities, and known unknowns.
+3. For a bugfix, establish reproduction, failure mechanism, root cause, and a
    regression-test seam. For a feature, establish use cases, integration seam,
    sibling convention, alternatives, and compatibility implications.
-3. Trace entry points, implementations, callers, configuration, tests, docs,
+4. Trace entry points, implementations, callers, configuration, tests, docs,
    generated artifacts, dependencies, and downstream consumers.
-4. Specify observable desired-state invariants and numbered acceptance criteria.
-5. Produce exact test-first steps with real repositories, paths, symbols,
+5. Specify observable desired-state invariants and numbered acceptance criteria.
+6. Produce exact test-first steps with real repositories, paths, symbols,
    conventions, dependencies, test IDs, and commands sourced from repository
    documentation.
-6. Use the preloaded `plan-qaas-change` output contract and template. Return
+7. Use the preloaded `plan-qaas-change` output contract and template. Return
    `NEEDS_DECISION` or `BLOCKED` instead of filling an evidence gap with a guess.
 
 Return only the draft plan plus a short evidence-gap summary for the orchestrator.

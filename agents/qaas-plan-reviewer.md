@@ -29,6 +29,8 @@ the repositories.
 - Read each owning repository's `CLAUDE.md` and relevant `project_specs.md`.
 - Compare the raw request directly with the plan; do not rely on the planner's
   private reasoning or summary.
+- Verify that the Know QaaS Context Brief explains the ecosystem before the plan
+  narrows into files and symbols. Reject a brief that is only a repository list.
 - Re-check each repository commit. A moved commit makes affected claims stale.
 - Apply the preloaded `plan-qaas-change` review contract. Enforce evidence,
   architecture, exactness, traceability, completeness, minimality, sequencing,

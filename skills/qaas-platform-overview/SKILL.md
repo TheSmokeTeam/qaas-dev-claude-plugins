@@ -19,6 +19,34 @@ monorepo) — NOT author QaaS tests with it (that is a separate, end-user concer
 This plugin owns the knowledge that lives *between* repos; everything inside a
 repo belongs to that repo's own docs.
 
+## Step 1 — Know QaaS (mandatory ecosystem context)
+
+Run this stage before routing, planning, implementing, verifying, or releasing a
+QaaS platform change. Its purpose is to give the agent a correct working mental
+model of the QaaS ecosystem. It is context acquisition, not an implementation
+plan and not permission to edit code.
+
+Build a concise **Know QaaS Context Brief** for the raw request:
+
+- **Platform scope:** confirm that the request concerns developing the QaaS
+  platform rather than authoring tests with QaaS.
+- **Ecosystem location:** identify the affected capability and likely owning and
+  consuming repositories without claiming unverified code-level details.
+- **Dependency position:** explain where the capability sits in the framework
+  dependency graph and which upstream/downstream relationships matter.
+- **Extension model:** classify Type A, Type B, existing behavior, or not yet
+  classifiable, with the ownership reason for that classification.
+- **Release ripple:** state the likely package, PackageMirror, schema, docs, and
+  downstream implications, or explain why they do not apply.
+- **Authority map:** name the repository instructions, source, live docs, and
+  knowledge-graph evidence that the next stage must inspect.
+- **Known unknowns:** record missing ecosystem facts explicitly; never fill them
+  from memory.
+
+Keep the brief proportional to the request. Pass it intact to the next stage and
+refresh it when scope, classification, or repository evidence changes. Do not
+route a change request or begin detailed source planning until this brief exists.
+
 ## Constitution (non-negotiable)
 
 1. **DELEGATE IN-REPO.** Most implementation repos (Framework, Runner, Mocker,
@@ -116,6 +144,9 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Routing — which skill / repo for a task
 
+Route only after completing the Know QaaS Context Brief. Routing chooses the
+next workflow; it does not replace ecosystem understanding.
+
 - "plan/design/implement a QaaS feature or bugfix" → `plan-qaas-change` first;
   implementation may start only from a current `APPROVED` plan.
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
@@ -126,10 +157,10 @@ Before claiming any change works, run these — evidence, not belief:
 
 ## Done when
 
-You have (a) identified the correct repo(s) for the task, (b) classified any
-extension work as Type A or Type B, (c) read the relevant in-tree `CLAUDE.md`,
-and (d) for feature/bugfix work, produced a current independently reviewed plan
-before proposing code changes.
+The downstream agent has a concise Know QaaS Context Brief, the correct next
+workflow is selected, the relevant in-tree instructions are identified, and no
+ecosystem claim depends on unverified memory. For feature/bugfix work, planning
+and implementation remain separate later stages.
 
 ## Failure modes
 
@@ -137,4 +168,6 @@ before proposing code changes.
   (Type A misclassified as B) — or the reverse.
 - Forgetting the release ripple after a framework change.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
+- Treating Know QaaS as a repository lookup or plan instead of ecosystem context.
+- Routing from keywords before understanding ownership, dependencies, and ripple.
 - Editing code from a vague, unreviewed, blocked, or stale plan.

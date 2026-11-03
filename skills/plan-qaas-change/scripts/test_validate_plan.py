@@ -12,7 +12,7 @@ from validate_plan import validate_text
 
 
 VALID_PLAN = """---
-schema_version: "1"
+schema_version: "2"
 change_id: qaas-normalize-name
 title: Normalize validator names
 change_kind: bugfix
@@ -28,32 +28,48 @@ review:
 
 # QaaS Change Specification and Implementation Plan
 
-## 1. Developer summary
+## 1. Know QaaS Context Brief
+### Platform scope
+This changes QaaS platform validation, not end-user test authoring.
+### Ecosystem location
+QaaS.Framework owns the validator and its consumers remain in the framework.
+### Dependency position
+The validator sits in existing framework behavior with no new dependency edge.
+### Extension model
+Existing behavior; this is neither a Type A hook nor a new Type B family.
+### Release ripple
+The framework package follows its normal downstream release ripple if published.
+### Authority map
+The repository instructions and Validator source are authoritative.
+### Known unknowns
+None.
+
+## 2. Developer summary
 Normalize the fourth validator exactly like its three siblings.
 
-## 2. Request
+## 3. Request
 Fix mixed-case validation without unrelated cleanup.
 
-## 3. Current-state evidence
+## 4. Current-state evidence
 | ID | Kind | Fact | Evidence | Confidence |
 |---|---|---|---|---|
 | E-1 | fact | Three siblings normalize names. | `QaaS.Framework/Validator.cs:10` | verified |
 
-## 4. Current behavior
+## 5. Current behavior
 The fourth validator skips normalization and rejects mixed-case names.
 
-## 5. Desired-state specification
+## 6. Desired-state specification
 ### Invariants
 Existing validation behavior remains unchanged.
 ### Acceptance criteria
 - AC-1: Given a mixed-case name, when the fourth validator runs, then validation succeeds.
 
-## 6. Impact map
+## 7. Impact map
 | Surface | Impact | Evidence or N/A reason |
 |---|---|---|
 | Tests | Add one regression test. | E-1 |
 
-## 7. Exact implementation sequence
+## 8. Exact implementation sequence
 ### Step P1 — Add the failing behavioral test
 - Repository: `TheSmokeTeam/QaaS.Framework`
 - File: `QaaS.Framework.Tests/ValidatorTests.cs`
@@ -76,33 +92,33 @@ Existing validation behavior remains unchanged.
 - Tests: T-1
 - Verification command: `dotnet test QaaS.Framework.sln`
 
-## 8. Traceability matrix
+## 9. Traceability matrix
 | Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
 |---|---|---|---|---|
 | AC-1 | E-1 | P1, P2 | T-1 | `dotnet test QaaS.Framework.sln` |
 
-## 9. Test-first verification plan
+## 10. Test-first verification plan
 | Test ID | Level | Location | Scenario | Fails before? | Expected result |
 |---|---|---|---|---|---|
 | T-1 | unit | `ValidatorTests.AcceptsMixedCaseName` | Mixed-case name | Yes | Passes validation |
 
-## 10. Release and rollout
+## 11. Release and rollout
 N/A: local bugfix with no package contract change.
 
-## 11. Risks
+## 12. Risks
 | Risk | Likelihood | Impact | Mitigation | Verification |
 |---|---|---|---|---|
 | Regression | Low | Medium | Reuse sibling helper | T-1 |
 
-## 12. Open decisions and missing evidence
+## 13. Open decisions and missing evidence
 None.
 
-## 13. Review record
+## 14. Review record
 | Finding | Severity | Disposition | Resulting plan change |
 |---|---|---|---|
 | None | — | — | Approved |
 
-## 14. Implementation handoff
+## 15. Implementation handoff
 - Starting repository and file: `QaaS.Framework.Tests/ValidatorTests.cs`
 - Repository order: QaaS.Framework
 - First failing test: T-1
@@ -124,6 +140,25 @@ class ValidatePlanTests(unittest.TestCase):
             VALID_PLAN.replace("- Symbol: `Validator.Validate`\n", "")
         )
         self.assertTrue(any("P2 is missing populated field: Symbol" in error for error in errors))
+
+    def test_approved_plan_requires_complete_know_qaas_brief(self) -> None:
+        errors = validate_text(
+            VALID_PLAN.replace("### Dependency position\n", "")
+        )
+        self.assertTrue(
+            any("Know QaaS Context Brief is missing heading" in error for error in errors)
+        )
+
+    def test_approved_plan_rejects_empty_know_qaas_section(self) -> None:
+        errors = validate_text(
+            VALID_PLAN.replace(
+                "### Dependency position\nThe validator sits in existing framework behavior with no new dependency edge.\n",
+                "### Dependency position\n",
+            )
+        )
+        self.assertTrue(
+            any("Know QaaS Context Brief has empty section" in error for error in errors)
+        )
 
     def test_blocked_plan_allows_incomplete_body(self) -> None:
         blocked = VALID_PLAN.replace("status: APPROVED", "status: BLOCKED")

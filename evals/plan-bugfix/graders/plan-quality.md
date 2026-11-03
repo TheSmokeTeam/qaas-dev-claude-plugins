@@ -4,7 +4,9 @@ focus: last_message
 weight: 3
 ---
 PASS only if the response is an implementation-ready, independently reviewed
-plan that: identifies FourthValidator.Validate as the failing path and the
+plan that: starts with a Know QaaS Context Brief explaining ecosystem ownership,
+dependency position, extension model, release implications, authorities, and
+known unknowns; identifies FourthValidator.Validate as the failing path and the
 missing ValidationHelper.NormalizeName call as the evidence-backed root cause;
 starts with a focused mixed-case regression test in FourthValidatorTests.cs;
 names exact files and symbols; includes acceptance criteria and test
