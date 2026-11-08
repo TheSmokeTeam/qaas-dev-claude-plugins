@@ -1,22 +1,27 @@
 # QaaS Change Specification and Implementation Plan Template
 
 Use this schema exactly. Remove instructional placeholders from a completed plan.
-An `APPROVED` plan must pass `scripts/validate_plan.py` when saved.
+An `AWAITING_APPROVAL` or `APPROVED` plan must pass
+`scripts/validate_plan.py` when saved.
 
 ```markdown
 ---
-schema_version: "2"
+schema_version: "3"
+plan_revision: 1
 change_id: qaas-<short-slug>
 title: <feature or bugfix title>
 change_kind: feature | bugfix
 complexity: small | standard | cross-repo
-status: DRAFT | NEEDS_DECISION | BLOCKED | APPROVED | STALE
+status: DRAFT | NEEDS_DECISION | BLOCKED | AWAITING_APPROVAL | APPROVED | STALE
 qaas_classification: type-a | type-b | existing-behavior | not-applicable
 repositories:
   - name: TheSmokeTeam/<repo>
     inspected_commit: <full SHA>
 review:
   verdict: APPROVE | REVISE | BLOCK
+developer_approval:
+  status: PENDING | APPROVED | CHANGES_REQUESTED
+  approved_revision: null | <plan revision>
 ---
 
 # QaaS Change Specification and Implementation Plan
@@ -35,20 +40,38 @@ Explain the QaaS ecosystem relevant to this request before narrowing into
 implementation detail. This is the context handoff from the mandatory Know QaaS
 stage, not a duplicate implementation plan.
 
-## 2. Developer summary
+## 2. Developer interview record
+
+### Shared understanding
+
+Confirmed by the developer: Yes | No
+
+### Decisions
+
+| ID | Decision question | Agent recommendation | Developer decision | Rationale |
+|---|---|---|---|---|
+| D-1 | ... | ... | ... | ... |
+
+### Rejected scope and alternatives
+
+List scope or alternatives rejected during the interview or minimality pass and
+why. Research codebase facts before asking; this table records developer
+decisions, not facts the agent could have discovered.
+
+## 3. Developer summary
 
 Explain what changes, why it belongs in these repositories, how the affected
 QaaS flow works, and what success looks like in language useful to a developer
 who is only semi-fluent in QaaS.
 
-## 3. Request
+## 4. Request
 
 ### Problem or use case
 ### Constraints
 ### Non-goals
 ### User-visible behavior
 
-## 4. Current-state evidence
+## 5. Current-state evidence
 
 | ID | Kind | Fact | Evidence | Confidence |
 |---|---|---|---|---|
@@ -57,7 +80,7 @@ who is only semi-fluent in QaaS.
 Kinds: `fact`, `inference`, `assumption`, or `decision`. An assumption that
 changes implementation prevents approval.
 
-## 5. Current behavior
+## 6. Current behavior
 
 Describe the relevant control/data flow.
 
@@ -65,7 +88,7 @@ For a bugfix include reproduction conditions, observed and expected results,
 failure mechanism, and root cause. For a feature include use cases, integration
 seam, sibling convention, material alternatives, and selection rationale.
 
-## 6. Desired-state specification
+## 7. Desired-state specification
 
 ### Invariants
 
@@ -74,7 +97,7 @@ seam, sibling convention, material alternatives, and selection rationale.
 - AC-1: Given ..., when ..., then ...
 - AC-2: ...
 
-## 7. Impact map
+## 8. Impact map
 
 | Surface | Impact | Evidence or N/A reason |
 |---|---|---|
@@ -88,7 +111,7 @@ seam, sibling convention, material alternatives, and selection rationale.
 | Compatibility/migration | ... | ... |
 | Security/performance/observability | ... | ... |
 
-## 8. Exact implementation sequence
+## 9. Exact implementation sequence
 
 ### Step P1 — Add the failing behavioral test
 
@@ -114,13 +137,13 @@ seam, sibling convention, material alternatives, and selection rationale.
 - Tests: T-1, T-2
 - Verification command: `<command copied from repository docs>`
 
-## 9. Traceability matrix
+## 10. Traceability matrix
 
 | Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
 |---|---|---|---|---|
 | AC-1 | E-1 | P1, P2 | T-1 | ... |
 
-## 10. Test-first verification plan
+## 11. Test-first verification plan
 
 | Test ID | Level | Location | Scenario | Fails before? | Expected result |
 |---|---|---|---|---|---|
@@ -129,28 +152,41 @@ seam, sibling convention, material alternatives, and selection rationale.
 List focused tests, affected-project tests, full repository tests, formatting or
 static checks, and cross-repository verification when required.
 
-## 11. Release and rollout
+## 12. Release and rollout
 
 Cover versioning, downstream package-reference changes, PackageMirror,
 schema/docs regeneration, compatibility/migration, and rollback. Use
 evidence-backed `N/A` entries for a local change.
 
-## 12. Risks
+## 13. Risks
 
 | Risk | Likelihood | Impact | Mitigation | Verification |
 |---|---|---|---|---|
 
-## 13. Open decisions and missing evidence
+## 14. Open decisions and missing evidence
 
 None.
 
-## 14. Review record
+## 15. Review record
 
 | Finding | Severity | Disposition | Resulting plan change |
 |---|---|---|---|
 | None | — | — | Reviewer approved without findings |
 
-## 15. Implementation handoff
+## 16. Developer approval
+
+- Plan revision: 1
+- Presented to: developer
+- Decision: Pending | Approved | Changes requested
+- Approval evidence: conversation response, issue comment, or other explicit
+  developer decision that names this revision
+- Invalidated by: any material plan change or inspected repository commit change
+
+Technical-review approval does not populate this section. Present the reviewed
+plan as `AWAITING_APPROVAL`; set `APPROVED` only after the developer explicitly
+approves the same revision.
+
+## 17. Implementation handoff
 
 - Starting repository and file: ...
 - Repository order: ...
@@ -162,8 +198,9 @@ None.
 
 ## Complexity scaling
 
-- `small`: keep sections concise, but retain provenance, root-cause/integration
-  evidence, acceptance criteria, exact steps, tests, and review.
+- `small`: keep sections concise, but retain the interview decision, provenance,
+  root-cause/integration evidence, acceptance criteria, exact steps, tests,
+  review, and developer approval.
 - `standard`: use the complete template.
 - `cross-repo`: include a per-repository sequence, dependency ordering, release
   ripple, compatibility, migration, schemas, and documentation.

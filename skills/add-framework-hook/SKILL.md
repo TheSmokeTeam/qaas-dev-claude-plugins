@@ -31,7 +31,9 @@ Type B; use `extend-framework-core`.
 1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
    The plan must verify the target Common repository, SDK contract, discovery
    behavior, exact files/symbols, tests, and release follow-up. Stop on
-   `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+   `AWAITING_APPROVAL`, `NEEDS_DECISION`, `BLOCKED`, or `STALE`. Confirm the
+   technical-review verdict is `APPROVE`, developer approval is `APPROVED`, and
+   `approved_revision` matches `plan_revision`.
 2. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
    `project_specs.md` first** — they define the exact base classes, config-object
    convention, naming, and `dotnet build/test` commands. Do not guess signatures.
@@ -60,4 +62,4 @@ own build and test commands pass, and you have noted the release-ripple follow-u
 - Inventing a base-class or config signature instead of reading the repo's
   `CLAUDE.md`/siblings.
 - A `Common.*` package that depends on framework internals beyond the SDK contract.
-- Starting implementation from an unreviewed or stale plan.
+- Starting implementation from an unreviewed, developer-unapproved, or stale plan.

@@ -65,6 +65,17 @@ if ! (cd "$ROOT/skills/plan-qaas-change/scripts" && python3 -m unittest -q test_
   err "plan validator unit tests failed"
 fi
 
+# 6b. Implementation skills must preserve the human approval gate.
+for name in add-framework-hook extend-framework-core; do
+  skill="$ROOT/skills/$name/SKILL.md"
+  grep -Fq 'AWAITING_APPROVAL' "$skill" \
+    || err "$skill: must stop while developer approval is pending"
+  grep -Fq 'approved_revision' "$skill" \
+    || err "$skill: must match developer approval to plan revision"
+done
+grep -Fq 'developer_approval' "$ROOT/skills/plan-qaas-change/scripts/validate_plan.py" \
+  || err "plan validator must enforce developer approval"
+
 # 7. Referenced URLs resolve (skipped when OFFLINE=1).
 if [ "${OFFLINE:-0}" != "1" ]; then
   while read -r url; do

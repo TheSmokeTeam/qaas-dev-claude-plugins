@@ -61,9 +61,11 @@ route a change request or begin detailed source planning until this brief exists
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
 4. **SPECIFY BEFORE IMPLEMENTING.** For a feature or bugfix, use
-   `plan-qaas-change` to establish current state, desired state, acceptance
-   criteria, exact test-first steps, and an independent `APPROVED` review before
-   editing production code. Revalidate a plan when an inspected repository moves.
+   `plan-qaas-change` to interview the developer, establish current state,
+   desired state, acceptance criteria, exact test-first steps, and an independent
+   technical review. Edit production code only after the developer explicitly
+   approves that reviewed plan revision. Revalidate when an inspected repository
+   moves or material plan content changes.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -126,9 +128,10 @@ wiring (factory vs switch vs builder) is NOT the discriminator.
 Before claiming any change works, run these — evidence, not belief:
 
 - **Strict SDD / plan gate.** Do not begin a feature or bugfix from an informal
-  checklist. Produce and review a QaaS Change Specification and Implementation
-  Plan with verified repositories, commits, files, symbols, tests, impact, and
-  release work. `NEEDS_DECISION`, `BLOCKED`, and `STALE` are stop states.
+  checklist. Build the plan with the developer through an evidence-backed
+  decision interview, independently review it, then obtain explicit developer
+  approval of the current revision. `AWAITING_APPROVAL`, `NEEDS_DECISION`,
+  `BLOCKED`, and `STALE` are stop states.
 - **TDD / verify in-repo.** Add or update a test in the repo's `*.Tests` project
   for the behavior you changed, then run that repo's real commands from its
   `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
@@ -148,12 +151,19 @@ Route only after completing the Know QaaS Context Brief. Routing chooses the
 next workflow; it does not replace ecosystem understanding.
 
 - "plan/design/implement a QaaS feature or bugfix" → `plan-qaas-change` first;
-  implementation may start only from a current `APPROVED` plan.
+  implementation may start only from a technically reviewed plan whose current
+  revision the developer explicitly approved.
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
+
+When the original request includes implementation, pause at
+`AWAITING_APPROVAL`. After the developer explicitly approves that exact revision,
+resume the original request through the appropriate implementation skill and
+finish with verification. When the request asks only for a plan, stop after
+recording approval; approval is not itself a new request to edit code.
 
 ## Done when
 
@@ -170,4 +180,5 @@ and implementation remain separate later stages.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
 - Treating Know QaaS as a repository lookup or plan instead of ecosystem context.
 - Routing from keywords before understanding ownership, dependencies, and ripple.
+- Treating technical-review approval as developer authorization to implement.
 - Editing code from a vague, unreviewed, blocked, or stale plan.

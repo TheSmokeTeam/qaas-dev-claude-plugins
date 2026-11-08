@@ -58,9 +58,11 @@ route a change request or begin detailed source planning until this brief exists
 3. **LIVE OVER MEMORY.** QaaS evolves and your training is stale. Confirm the repo
    set and the Type B family list against the live `QaaS.Framework` CLAUDE.md.
 4. **SPECIFY BEFORE IMPLEMENTING.** For a feature or bugfix, use
-   `plan-qaas-change` to establish current state, desired state, acceptance
-   criteria, exact test-first steps, and an independent `APPROVED` review before
-   editing production code. Revalidate a plan when an inspected repository moves.
+   `plan-qaas-change` to interview the developer, establish current state,
+   desired state, acceptance criteria, exact test-first steps, and an independent
+   technical review. Edit production code only after the developer explicitly
+   approves that reviewed plan revision. Revalidate when an inspected repository
+   moves or material plan content changes.
 
 ## The repos (https://github.com/TheSmokeTeam)
 
@@ -123,9 +125,10 @@ wiring (factory vs switch vs builder) is NOT the discriminator.
 Before claiming any change works, run these — evidence, not belief:
 
 - **Strict SDD / plan gate.** Do not begin a feature or bugfix from an informal
-  checklist. Produce and review a QaaS Change Specification and Implementation
-  Plan with verified repositories, commits, files, symbols, tests, impact, and
-  release work. `NEEDS_DECISION`, `BLOCKED`, and `STALE` are stop states.
+  checklist. Build the plan with the developer through an evidence-backed
+  decision interview, independently review it, then obtain explicit developer
+  approval of the current revision. `AWAITING_APPROVAL`, `NEEDS_DECISION`,
+  `BLOCKED`, and `STALE` are stop states.
 - **TDD / verify in-repo.** Add or update a test in the repo's `*.Tests` project
   for the behavior you changed, then run that repo's real commands from its
   `CLAUDE.md` (typically `dotnet build <sln>` then `dotnet test <sln>`, plus
@@ -145,12 +148,19 @@ Route only after completing the Know QaaS Context Brief. Routing chooses the
 next workflow; it does not replace ecosystem understanding.
 
 - "plan/design/implement a QaaS feature or bugfix" → `plan-qaas-change` first;
-  implementation may start only from a current `APPROVED` plan.
+  implementation may start only from a technically reviewed plan whose current
+  revision the developer explicitly approved.
 - "add an assertion/generator/probe/processor" → `add-framework-hook`.
 - "add a protocol / serializer / policy / edit the framework core" → `extend-framework-core`.
 - "release / version bump / mirror / publish packages" → `release-and-mirror`.
 - "where is X / which repo or doc covers Y" → `find-qaas-knowledge`.
 - Otherwise: open the most relevant repo and read its `CLAUDE.md` first.
+
+When the original request includes implementation, pause at
+`AWAITING_APPROVAL`. After the developer explicitly approves that exact revision,
+resume the original request through the appropriate implementation skill and
+finish with verification. When the request asks only for a plan, stop after
+recording approval; approval is not itself a new request to edit code.
 
 ## Done when
 
@@ -167,6 +177,7 @@ and implementation remain separate later stages.
 - Duplicating in-repo facts here instead of reading the repo's `CLAUDE.md`.
 - Treating Know QaaS as a repository lookup or plan instead of ecosystem context.
 - Routing from keywords before understanding ownership, dependencies, and ripple.
+- Treating technical-review approval as developer authorization to implement.
 - Editing code from a vague, unreviewed, blocked, or stale plan.
 
 ---
@@ -267,6 +278,8 @@ into this plugin.
 
 - Do not implement the feature or bugfix while planning.
 - Do not edit source, tests, configuration, manifests, or generated files.
+- Do not treat technical-review approval as developer approval. Only the
+  developer can approve the current plan revision for implementation.
 - Require a Know QaaS Context Brief before detailed planning. The brief must
   cover platform scope, ecosystem location, dependency position, extension
   model, release ripple, authority map, and known unknowns.
@@ -280,8 +293,21 @@ into this plugin.
   the owning code and specifications.
 - Never invent a repository, path, symbol, signature, command, dependency, or
   configuration key. Missing evidence makes the plan `BLOCKED`, not approximate.
-- Do not require or alter another developer plugin. Use namespaced QaaS surfaces
-  and native tools when optional external tooling is absent.
+- Do not require, install, configure, or alter another developer plugin. Compose
+  with optional Grill Me and Ponytail skills when they are already available;
+  use the built-in interview and minimality rules otherwise.
+
+## Optional plugin interoperability
+
+- **Grill Me:** if the model-invoked `grilling` skill is available, invoke it as
+  the developer-interview engine. Do not invoke the user-only `/grill-me`
+  wrapper from this skill. If unavailable, follow the interview protocol below.
+- **Ponytail:** if `ponytail` is installed or already active, apply its current
+  level when comparing solutions and reviewing plan scope. Do not switch its
+  global mode. If unavailable, prefer the smallest complete change by reusing
+  existing QaaS patterns, platform features, and installed dependencies.
+- Optional plugins may strengthen the workflow but never replace QaaS evidence,
+  the independent reviewer, tests, safety, release work, or developer approval.
 
 ## Workflow
 
@@ -289,43 +315,66 @@ into this plugin.
    build the mandatory Know QaaS Context Brief. If a brief already exists,
    verify that it matches the current request and evidence; refresh it otherwise.
    Do not reduce this step to choosing a repository.
-2. **Set scope.** Restate the request, observable outcome, constraints, non-goals,
-   and complexity: `small`, `standard`, or `cross-repo`. Ask only questions whose
-   answers materially change the design; record other assumptions explicitly.
-3. **Capture provenance.** Record every inspected repository and its full commit
+2. **Research facts before interviewing.** Inspect the owning instructions,
+   source, tests, graph relationships, and sibling conventions. Never ask the
+   developer for a fact the repositories or canonical sources can answer.
+3. **Interview the developer.** Use `grilling` when available; otherwise map the
+   open design decisions as a dependency tree. Ask the current decision frontier
+   in numbered rounds, give a recommended answer and tradeoff for every question,
+   wait for the developer's answers, and recompute the next frontier. Decisions
+   belong to the developer; do not silently answer them. Finish by summarizing
+   the decisions and require explicit confirmation of shared understanding.
+4. **Set scope.** Restate the confirmed outcome, constraints, non-goals, and
+   complexity: `small`, `standard`, or `cross-repo`. Record the interview as
+   numbered decisions (`D-1`, `D-2`, ...). An unresolved decision makes the plan
+   `NEEDS_DECISION`.
+5. **Capture provenance.** Record every inspected repository and its full commit
    SHA. The plan becomes `STALE` when an affected repository moves before
    implementation.
-4. **Build the current-state model.** Locate entry points, implementations,
+6. **Build the current-state model.** Locate entry points, implementations,
    callers, configurations, tests, generated artifacts, docs, and release edges.
    Cite each important fact as `repo/path:line` or graph provenance.
-5. **Apply the change-kind gate.**
+7. **Apply the change-kind gate.**
    - Bugfix: establish reproduction conditions, observed versus expected result,
      failure mechanism, evidence-backed root cause, and a regression test that
      fails before the fix.
    - Feature: establish use cases, the verified integration seam, a sibling
      convention, material alternatives, and compatibility implications.
-6. **Specify the desired state.** Write implementation-independent invariants and
+8. **Specify the desired state.** Write implementation-independent invariants and
    numbered acceptance criteria (`AC-1`, `AC-2`, ...), including error and boundary
    behavior.
-7. **Map impact.** Address API/contracts, configuration/schema, runtime selection,
+9. **Map impact.** Address API/contracts, configuration/schema, runtime selection,
    callers, tests, docs, packaging/release, compatibility/migration, security,
    performance, and observability. Use an evidence-backed `N/A` where irrelevant.
-8. **Draft test-first implementation steps.** Start with the failing behavioral
+10. **Draft test-first implementation steps.** Start with the failing behavioral
    test when practical. Every step must name a repository, file, symbol, exact
    behavior change, convention to follow, dependencies, acceptance criteria,
    test IDs, and verification command. Do not write "relevant files", "as
    needed", or another discovery placeholder.
-9. **Build traceability.** Map every acceptance criterion to evidence,
+11. **Build traceability.** Map every acceptance criterion to evidence,
    implementation steps, tests, and final verification. Include focused and full
    repository commands from repository documentation.
-10. **Review independently.** Delegate the finished draft plus the raw request to
+12. **Apply the minimality gate.** Use Ponytail when available. Otherwise test
+    the proposal in order: is the change needed, can existing code solve it, can
+    a platform feature solve it, can an installed dependency solve it, and what
+    is the smallest complete diff? Record rejected scope. Never cut required
+    validation, error handling, security, compatibility, tests, or release work.
+13. **Review independently.** Delegate the finished draft, raw request, Know QaaS
+    brief, and developer decisions to
     `qaas-plan-reviewer`. Do not provide private planner conclusions. Resolve all
     critical and major findings, record their dispositions, and request another
     review after material changes.
-11. **Gate the result.** Emit exactly one status:
-    - `APPROVED`: reviewer approved, all evidence and traceability exist, no
-      implementation-changing decision remains, and inspected commits still
-      match.
+14. **Request developer approval.** After reviewer `APPROVE`, increment and
+    present the complete plan revision as `AWAITING_APPROVAL`. Ask the developer
+    to explicitly approve that revision or request changes. A reviewer cannot
+    answer this gate. Any material revision resets approval to pending and must
+    be reviewed again.
+15. **Gate the result.** Emit exactly one status:
+    - `AWAITING_APPROVAL`: technical review passed and the current revision is
+      waiting for the developer's explicit decision.
+    - `APPROVED`: the developer explicitly approved the same revision after
+      technical review, all evidence and traceability exist, no implementation-
+      changing decision remains, and inspected commits still match.
     - `NEEDS_DECISION`: a user/product/architecture choice changes the plan.
     - `BLOCKED`: required repository evidence, reproduction, root cause, or
       integration seam is unavailable.
@@ -342,14 +391,15 @@ Return the complete Markdown plan in the conversation by default. Save it only
 when the user requests a persistent artifact; never place planning artifacts in a
 QaaS source repository merely for convenience.
 
-Before marking a saved plan `APPROVED`, run:
+Before presenting a saved plan for approval or marking it `APPROVED`, run:
 
 ```bash
 python3 <skill-directory>/scripts/validate_plan.py <plan.md>
 ```
 
 For a conversation-only plan, apply the same checks manually. The validator is a
-structural gate; reviewer approval supplies the semantic gate.
+structural gate; reviewer approval supplies the technical gate; explicit
+developer approval supplies the implementation authorization.
 
 ## Done when
 
@@ -357,7 +407,8 @@ The plan carries the Know QaaS Context Brief forward, distinguishes
 fact/inference/assumption/decision, specifies current and desired state, cites
 live evidence, maps acceptance criteria through tests and implementation, covers
 cross-repo and release effects, records repository commits, and carries an
-independent verdict. No production change has been made.
+independent verdict, and explicit developer approval state for the current plan
+revision. No production change has been made during planning.
 
 ## Failure modes
 
@@ -372,6 +423,12 @@ independent verdict. No production change has been made.
 - Treating knowledge-graph output as sufficient code-level evidence.
 - Approving a plan with unresolved decisions, placeholders, missing tests, or
   stale repository commits.
+- Asking the developer to discover codebase facts instead of asking only for
+  product, scope, compatibility, and architecture decisions.
+- Starting implementation after reviewer approval but before the developer
+  explicitly approves the same plan revision.
+- Letting a Ponytail minimality pass remove requested behavior or required
+  correctness, safety, tests, compatibility, or release work.
 - Invoking generic commands, installing dependencies, or changing hooks/settings
   owned by another plugin.
 
@@ -398,7 +455,9 @@ Type B; use `extend-framework-core`.
 1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
    The plan must verify the target Common repository, SDK contract, discovery
    behavior, exact files/symbols, tests, and release follow-up. Stop on
-   `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+   `AWAITING_APPROVAL`, `NEEDS_DECISION`, `BLOCKED`, or `STALE`. Confirm the
+   technical-review verdict is `APPROVE`, developer approval is `APPROVED`, and
+   `approved_revision` matches `plan_revision`.
 2. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
    `project_specs.md` first** — they define the exact base classes, config-object
    convention, naming, and `dotnet build/test` commands. Do not guess signatures.
@@ -427,7 +486,7 @@ own build and test commands pass, and you have noted the release-ripple follow-u
 - Inventing a base-class or config signature instead of reading the repo's
   `CLAUDE.md`/siblings.
 - A `Common.*` package that depends on framework internals beyond the SDK contract.
-- Starting implementation from an unreviewed or stale plan.
+- Starting implementation from an unreviewed, developer-unapproved, or stale plan.
 
 ---
 
@@ -456,7 +515,9 @@ no reflection/DLL-drop path exists; you must edit the framework.
 1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
    The plan must verify the owning framework project, selection point, exact
    files/symbols, tests, compatibility, downstream consumers, and release order.
-   Stop on `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+   Stop on `AWAITING_APPROVAL`, `NEEDS_DECISION`, `BLOCKED`, or `STALE`. Confirm
+   the technical-review verdict is `APPROVE`, developer approval is `APPROVED`,
+   and `approved_revision` matches `plan_revision`.
 2. **Open `QaaS.Framework` and read the root `CLAUDE.md` plus the target
    project's `project_specs.md` first.** Confirm the family is still Type B and
    learn the exact abstractions, factory/builder, and "Forbidden in this project"
@@ -487,7 +548,7 @@ downstream release ripple is noted.
   reflection-discovered — it will never be found).
 - Forgetting one of the two `PolicyBuilder` switches (`Configure` AND `Build`).
 - Shipping a framework change without planning the downstream release ripple.
-- Starting implementation from an unreviewed or stale plan.
+- Starting implementation from an unreviewed, developer-unapproved, or stale plan.
 
 ---
 

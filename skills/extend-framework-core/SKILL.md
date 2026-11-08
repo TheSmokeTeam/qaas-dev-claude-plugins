@@ -35,7 +35,9 @@ no reflection/DLL-drop path exists; you must edit the framework.
 1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
    The plan must verify the owning framework project, selection point, exact
    files/symbols, tests, compatibility, downstream consumers, and release order.
-   Stop on `NEEDS_DECISION`, `BLOCKED`, or `STALE`.
+   Stop on `AWAITING_APPROVAL`, `NEEDS_DECISION`, `BLOCKED`, or `STALE`. Confirm
+   the technical-review verdict is `APPROVE`, developer approval is `APPROVED`,
+   and `approved_revision` matches `plan_revision`.
 2. **Open `QaaS.Framework` and read the root `CLAUDE.md` plus the target
    project's `project_specs.md` first.** Confirm the family is still Type B and
    learn the exact abstractions, factory/builder, and "Forbidden in this project"
@@ -66,4 +68,4 @@ downstream release ripple is noted.
   reflection-discovered — it will never be found).
 - Forgetting one of the two `PolicyBuilder` switches (`Configure` AND `Build`).
 - Shipping a framework change without planning the downstream release ripple.
-- Starting implementation from an unreviewed or stale plan.
+- Starting implementation from an unreviewed, developer-unapproved, or stale plan.

@@ -9,7 +9,7 @@
     {
       "name": "qaas-platform-dev",
       "source": ".",
-      "description": "Spec-driven QaaS platform development: mandatory ecosystem context, repo and knowledge graphs, Type A/Type B routing, exact reviewed implementation plans, verification, and release ripple.",
+      "description": "Spec-driven QaaS development: ecosystem context, developer interview, smallest-complete exact plan, independent review, explicit approval, verification, and release ripple.",
       "version": "0.3.0",
       "category": "development",
       "tags": ["qaas", "platform-development", "csharp", "dotnet", "monorepo"]

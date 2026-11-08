@@ -11,4 +11,6 @@ round-trip/invalid-input/factory tests by following YAML; records both fixture
 commits; maps acceptance criteria to tests and steps; and covers Framework
 release, downstream PackageReference rebuilds, PackageMirror, schemas/docs, and
 rollback. FAIL for a droppable hook design, one missing factory, generic release
-language, code edits, or an unreviewed approval.
+language, code edits, or treating technical review as implementation
+authorization. It must record the confirmed developer decisions and remain
+AWAITING_APPROVAL with developer approval PENDING.

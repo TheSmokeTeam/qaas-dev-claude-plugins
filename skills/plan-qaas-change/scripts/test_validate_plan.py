@@ -12,7 +12,8 @@ from validate_plan import validate_text
 
 
 VALID_PLAN = """---
-schema_version: "2"
+schema_version: "3"
+plan_revision: 2
 change_id: qaas-normalize-name
 title: Normalize validator names
 change_kind: bugfix
@@ -24,6 +25,9 @@ repositories:
     inspected_commit: 0123456789abcdef0123456789abcdef01234567
 review:
   verdict: APPROVE
+developer_approval:
+  status: APPROVED
+  approved_revision: 2
 ---
 
 # QaaS Change Specification and Implementation Plan
@@ -44,32 +48,42 @@ The repository instructions and Validator source are authoritative.
 ### Known unknowns
 None.
 
-## 2. Developer summary
+## 2. Developer interview record
+### Shared understanding
+Confirmed by the developer: Yes
+### Decisions
+| ID | Decision question | Agent recommendation | Developer decision | Rationale |
+|---|---|---|---|---|
+| D-1 | Include the nearby naming cleanup? | Exclude unrelated cleanup. | Exclude it. | Keep the bugfix minimal. |
+### Rejected scope and alternatives
+Renaming validators was rejected as unrelated scope.
+
+## 3. Developer summary
 Normalize the fourth validator exactly like its three siblings.
 
-## 3. Request
+## 4. Request
 Fix mixed-case validation without unrelated cleanup.
 
-## 4. Current-state evidence
+## 5. Current-state evidence
 | ID | Kind | Fact | Evidence | Confidence |
 |---|---|---|---|---|
 | E-1 | fact | Three siblings normalize names. | `QaaS.Framework/Validator.cs:10` | verified |
 
-## 5. Current behavior
+## 6. Current behavior
 The fourth validator skips normalization and rejects mixed-case names.
 
-## 6. Desired-state specification
+## 7. Desired-state specification
 ### Invariants
 Existing validation behavior remains unchanged.
 ### Acceptance criteria
 - AC-1: Given a mixed-case name, when the fourth validator runs, then validation succeeds.
 
-## 7. Impact map
+## 8. Impact map
 | Surface | Impact | Evidence or N/A reason |
 |---|---|---|
 | Tests | Add one regression test. | E-1 |
 
-## 8. Exact implementation sequence
+## 9. Exact implementation sequence
 ### Step P1 — Add the failing behavioral test
 - Repository: `TheSmokeTeam/QaaS.Framework`
 - File: `QaaS.Framework.Tests/ValidatorTests.cs`
@@ -92,33 +106,40 @@ Existing validation behavior remains unchanged.
 - Tests: T-1
 - Verification command: `dotnet test QaaS.Framework.sln`
 
-## 9. Traceability matrix
+## 10. Traceability matrix
 | Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
 |---|---|---|---|---|
 | AC-1 | E-1 | P1, P2 | T-1 | `dotnet test QaaS.Framework.sln` |
 
-## 10. Test-first verification plan
+## 11. Test-first verification plan
 | Test ID | Level | Location | Scenario | Fails before? | Expected result |
 |---|---|---|---|---|---|
 | T-1 | unit | `ValidatorTests.AcceptsMixedCaseName` | Mixed-case name | Yes | Passes validation |
 
-## 11. Release and rollout
+## 12. Release and rollout
 N/A: local bugfix with no package contract change.
 
-## 12. Risks
+## 13. Risks
 | Risk | Likelihood | Impact | Mitigation | Verification |
 |---|---|---|---|---|
 | Regression | Low | Medium | Reuse sibling helper | T-1 |
 
-## 13. Open decisions and missing evidence
+## 14. Open decisions and missing evidence
 None.
 
-## 14. Review record
+## 15. Review record
 | Finding | Severity | Disposition | Resulting plan change |
 |---|---|---|---|
 | None | — | — | Approved |
 
-## 15. Implementation handoff
+## 16. Developer approval
+- Plan revision: 2
+- Presented to: developer
+- Decision: Approved
+- Approval evidence: developer explicitly approved revision 2 in the conversation
+- Invalidated by: material plan or inspected commit changes
+
+## 17. Implementation handoff
 - Starting repository and file: `QaaS.Framework.Tests/ValidatorTests.cs`
 - Repository order: QaaS.Framework
 - First failing test: T-1
@@ -130,6 +151,33 @@ None.
 class ValidatePlanTests(unittest.TestCase):
     def test_approved_complete_plan_passes(self) -> None:
         self.assertEqual(validate_text(VALID_PLAN), [])
+
+    def test_reviewed_plan_can_wait_for_developer_approval(self) -> None:
+        awaiting = VALID_PLAN.replace(
+            "\nstatus: APPROVED\n", "\nstatus: AWAITING_APPROVAL\n"
+        )
+        awaiting = awaiting.replace("  status: APPROVED", "  status: PENDING")
+        awaiting = awaiting.replace("  approved_revision: 2", "  approved_revision: null")
+        awaiting = awaiting.replace("- Decision: Approved", "- Decision: Pending")
+        awaiting = awaiting.replace(
+            "developer explicitly approved revision 2 in the conversation",
+            "pending explicit developer approval",
+        )
+        self.assertEqual(validate_text(awaiting), [])
+
+    def test_approved_plan_requires_explicit_developer_approval(self) -> None:
+        pending = VALID_PLAN.replace("  status: APPROVED", "  status: PENDING")
+        pending = pending.replace("  approved_revision: 2", "  approved_revision: null")
+        errors = validate_text(pending)
+        self.assertTrue(any("requires explicit developer approval" in error for error in errors))
+
+    def test_approved_revision_must_match_current_revision(self) -> None:
+        errors = validate_text(VALID_PLAN.replace("  approved_revision: 2", "  approved_revision: 1"))
+        self.assertTrue(any("must match" in error for error in errors))
+
+    def test_developer_approval_requires_revision_field(self) -> None:
+        errors = validate_text(VALID_PLAN.replace("  approved_revision: 2\n", ""))
+        self.assertTrue(any("missing approved_revision" in error for error in errors))
 
     def test_approved_plan_rejects_placeholder(self) -> None:
         errors = validate_text(VALID_PLAN.replace("Normalize the name", "TODO"))
@@ -160,9 +208,17 @@ class ValidatePlanTests(unittest.TestCase):
             any("Know QaaS Context Brief has empty section" in error for error in errors)
         )
 
+    def test_reviewed_plan_requires_confirmed_developer_interview(self) -> None:
+        errors = validate_text(
+            VALID_PLAN.replace("Confirmed by the developer: Yes", "Confirmed by the developer: No")
+        )
+        self.assertTrue(any("confirm shared understanding" in error for error in errors))
+
     def test_blocked_plan_allows_incomplete_body(self) -> None:
-        blocked = VALID_PLAN.replace("status: APPROVED", "status: BLOCKED")
+        blocked = VALID_PLAN.replace("\nstatus: APPROVED\n", "\nstatus: BLOCKED\n")
         blocked = blocked.replace("  verdict: APPROVE", "  verdict: BLOCK")
+        blocked = blocked.replace("  status: APPROVED", "  status: PENDING")
+        blocked = blocked.replace("  approved_revision: 2", "  approved_revision: null")
         blocked = blocked.split("# QaaS Change", 1)[0] + "# QaaS Change\nMissing source access.\n"
         self.assertEqual(validate_text(blocked), [])
 

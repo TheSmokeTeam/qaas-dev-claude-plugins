@@ -11,4 +11,5 @@ following ConstantGenerator, explicitly avoids a QaaS.Framework edit, includes
 test-first acceptance traceability, records the fixture commit, and includes the
 Common package to PackageMirror to qaas-docs release follow-up. FAIL for a
 generic plan, a Framework implementation, code edits, or missing independent
-review status.
+review status. The reviewed plan must record the confirmed developer decisions,
+remain AWAITING_APPROVAL with developer approval PENDING, and must not implement.
