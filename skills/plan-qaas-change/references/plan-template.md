@@ -1,46 +1,61 @@
-# QaaS Change Specification and Implementation Plan Template
+# QaaS Change Plan Schema
 
-Use this schema exactly. Remove instructional placeholders from a completed plan.
-An `AWAITING_APPROVAL` or `APPROVED` plan must pass
-`scripts/validate_plan.py` when saved.
+Use this schema exactly. Keep small changes concise inside the same nine
+sections; do not remove the evidence, interview, review, approval, or
+traceability gates.
 
 ```markdown
 ---
-schema_version: "3"
+schema_version: "4"
 plan_revision: 1
+plan_digest: null | sha256:<64 lowercase hexadecimal characters>
 change_id: qaas-<short-slug>
-title: <feature or bugfix title>
-change_kind: feature | bugfix
+title: <feature, bugfix, or refactor title>
+change_kind: feature | bugfix | refactor
 complexity: small | standard | cross-repo
 status: DRAFT | NEEDS_DECISION | BLOCKED | AWAITING_APPROVAL | APPROVED | STALE
-qaas_classification: type-a | type-b | existing-behavior | not-applicable
+qaas_classification: type-a | type-b | existing-behavior | not-applicable | undetermined
 repositories:
   - name: TheSmokeTeam/<repo>
-    inspected_commit: <full SHA>
+    checkout: <absolute checkout path>
+    inspected_commit: <40-character commit SHA>
+    worktree_fingerprint: sha256:<64 hexadecimal characters>
 review:
-  verdict: APPROVE | REVISE | BLOCK
+  verdict: PENDING | APPROVE | REVISE | BLOCK
+  reviewed_revision: null | <plan revision>
+  reviewed_digest: null | <plan digest>
+  evidence: Pending | <qaas-plan-reviewer result reference>
 developer_approval:
   status: PENDING | APPROVED | CHANGES_REQUESTED
   approved_revision: null | <plan revision>
+  approved_digest: null | <plan digest>
+  evidence: Pending | <developer message or trusted handoff reference>
+release:
+  authorization: NOT_AUTHORIZED | AUTHORIZED_AFTER_VERIFICATION
+  targets: <explicit packages, workflows, and documentation handoff, or N/A>
 ---
 
 # QaaS Change Specification and Implementation Plan
 
-## 1. Know QaaS Context Brief
+## 1. Context and Request
 
-### Platform scope
-### Ecosystem location
-### Dependency position
-### Extension model
-### Release ripple
-### Authority map
-### Known unknowns
+### Know QaaS Context Brief
 
-Explain the QaaS ecosystem relevant to this request before narrowing into
-implementation detail. This is the context handoff from the mandatory Know QaaS
-stage, not a duplicate implementation plan.
+#### Platform scope
+#### Ecosystem location
+#### Dependency position
+#### Extension model
+#### Release ripple
+#### Authority map
+#### Known unknowns
 
-## 2. Developer interview record
+### Problem or use case
+
+### Requested outcome and user-visible behavior
+
+### Constraints and scope
+
+## 2. Developer Decisions and Non-goals
 
 ### Shared understanding
 
@@ -52,43 +67,27 @@ Confirmed by the developer: Yes | No
 |---|---|---|---|---|
 | D-1 | ... | ... | ... | ... |
 
-### Rejected scope and alternatives
+If research leaves no material developer-owned decision, replace the table row
+with: `No material developer-owned decisions after research.` Shared-understanding
+confirmation is still required.
 
-List scope or alternatives rejected during the interview or minimality pass and
-why. Research codebase facts before asking; this table records developer
-decisions, not facts the agent could have discovered.
+### Non-goals and rejected alternatives
 
-## 3. Developer summary
+Record rejected scope and the minimality rationale. This section contains
+developer decisions, not facts the agent could have researched.
 
-Explain what changes, why it belongs in these repositories, how the affected
-QaaS flow works, and what success looks like in language useful to a developer
-who is only semi-fluent in QaaS.
+## 3. Current State and Evidence
 
-## 4. Request
-
-### Problem or use case
-### Constraints
-### Non-goals
-### User-visible behavior
-
-## 5. Current-state evidence
-
-| ID | Kind | Fact | Evidence | Confidence |
+| ID | Kind | Claim | Evidence | Confidence |
 |---|---|---|---|---|
 | E-1 | fact | ... | `repo/path:line` | verified |
 
-Kinds: `fact`, `inference`, `assumption`, or `decision`. An assumption that
-changes implementation prevents approval.
+Describe the current control/data flow. For a bugfix, include reproduction,
+observed and expected results, failure mechanism, root cause, and the regression
+test seam. For a feature or refactor, include use cases, integration seam,
+sibling convention, material alternatives, and compatibility implications.
 
-## 6. Current behavior
-
-Describe the relevant control/data flow.
-
-For a bugfix include reproduction conditions, observed and expected results,
-failure mechanism, and root cause. For a feature include use cases, integration
-seam, sibling convention, material alternatives, and selection rationale.
-
-## 7. Desired-state specification
+## 4. Desired State and Acceptance Criteria
 
 ### Invariants
 
@@ -97,13 +96,15 @@ seam, sibling convention, material alternatives, and selection rationale.
 - AC-1: Given ..., when ..., then ...
 - AC-2: ...
 
-## 8. Impact map
+## 5. Impact, Alternatives, and Minimality
+
+### Impact map
 
 | Surface | Impact | Evidence or N/A reason |
 |---|---|---|
 | Public API/contracts | ... | ... |
 | Configuration/schema | ... | ... |
-| Runtime discovery/factories | ... | ... |
+| Runtime selection/discovery | ... | ... |
 | Callers/consumers | ... | ... |
 | Tests | ... | ... |
 | Documentation | ... | ... |
@@ -111,9 +112,18 @@ seam, sibling convention, material alternatives, and selection rationale.
 | Compatibility/migration | ... | ... |
 | Security/performance/observability | ... | ... |
 
-## 9. Exact implementation sequence
+### Minimality and alternatives
 
-### Step P1 — Add the failing behavioral test
+### Release, rollout, and rollback
+
+### Risks
+
+| Risk | Likelihood | Impact | Mitigation | Verification |
+|---|---|---|---|---|
+
+## 6. Exact Test-First Implementation Sequence
+
+### Step P1 — Establish the failing behavioral test
 
 - Repository: `TheSmokeTeam/<repo>`
 - File: `path/to/file`
@@ -123,7 +133,7 @@ seam, sibling convention, material alternatives, and selection rationale.
 - Dependencies: None
 - Acceptance criteria: AC-1
 - Tests: T-1
-- Verification command: `<command copied from repository docs>`
+- Verification command: `<command from repository instructions>`
 
 ### Step P2 — Implement the smallest behavior change
 
@@ -135,72 +145,72 @@ seam, sibling convention, material alternatives, and selection rationale.
 - Dependencies: P1
 - Acceptance criteria: AC-1, AC-2
 - Tests: T-1, T-2
-- Verification command: `<command copied from repository docs>`
+- Verification command: `<command from repository instructions>`
 
-## 10. Traceability matrix
+## 7. Verification and Traceability
 
-| Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
-|---|---|---|---|---|
-| AC-1 | E-1 | P1, P2 | T-1 | ... |
-
-## 11. Test-first verification plan
+### Test plan
 
 | Test ID | Level | Location | Scenario | Fails before? | Expected result |
 |---|---|---|---|---|---|
 | T-1 | unit | `path:Symbol` | ... | Yes | ... |
 
-List focused tests, affected-project tests, full repository tests, formatting or
-static checks, and cross-repository verification when required.
+### Traceability matrix
 
-## 12. Release and rollout
-
-Cover versioning, downstream package-reference changes, PackageMirror,
-schema/docs regeneration, compatibility/migration, and rollback. Use
-evidence-backed `N/A` entries for a local change.
-
-## 13. Risks
-
-| Risk | Likelihood | Impact | Mitigation | Verification |
+| Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
 |---|---|---|---|---|
+| AC-1 | E-1 | P1, P2 | T-1 | ... |
 
-## 14. Open decisions and missing evidence
+List focused tests, affected-project tests, full repository checks, formatting
+or static checks, and cross-repository verification where required.
+
+## 8. Review and Approval Record
+
+### Open decisions and missing evidence
 
 None.
 
-## 15. Review record
+### Technical review history
 
-| Finding | Severity | Disposition | Resulting plan change |
+| Revision | Verdict | Findings | Disposition |
 |---|---|---|---|
-| None | — | — | Reviewer approved without findings |
+| 1 | PENDING | Independent review not run | Awaiting reviewer |
 
-## 16. Developer approval
+### Developer approval history
 
-- Plan revision: 1
-- Presented to: developer
-- Decision: Pending | Approved | Changes requested
-- Approval evidence: conversation response, issue comment, or other explicit
-  developer decision that names this revision
-- Invalidated by: any material plan change or inspected repository commit change
+| Revision | Decision | Evidence |
+|---|---|---|
+| 1 | Pending | Awaiting explicit developer decision on revision 1 |
 
-Technical-review approval does not populate this section. Present the reviewed
-plan as `AWAITING_APPROVAL`; set `APPROVED` only after the developer explicitly
-approves the same revision.
+Reviewer approval is technical readiness, not implementation authorization.
 
-## 17. Implementation handoff
+## 9. Implementation Handoff and Staleness Triggers
 
 - Starting repository and file: ...
 - Repository order: ...
 - First failing test: T-1
 - Checkpoint commands: ...
-- Stop and re-plan when: an inspected commit changes, an asserted symbol is
-  absent, or implementation reveals behavior inconsistent with the evidence.
+- Independent verifier: `qaas-verifier`
+- Release owner when authorized: `release-and-mirror` | N/A
+- Stop and re-plan when: a captured baseline changes, a named symbol is absent,
+  or implementation contradicts the evidence.
 ```
 
-## Complexity scaling
+## State rules
 
-- `small`: keep sections concise, but retain the interview decision, provenance,
-  root-cause/integration evidence, acceptance criteria, exact steps, tests,
-  review, and developer approval.
-- `standard`: use the complete template.
-- `cross-repo`: include a per-repository sequence, dependency ordering, release
-  ripple, compatibility, migration, schemas, and documentation.
+- Freeze `plan_revision` before review.
+- Compute `plan_digest` with `validate_plan.py --print-digest` after freezing the
+  substantive plan. The digest excludes only lifecycle status, review/developer
+  approval metadata, and section 8 history.
+- `AWAITING_APPROVAL` requires reviewer `APPROVE` on that revision and pending
+  developer approval. `reviewed_digest` must match `plan_digest`.
+- `APPROVED` additionally requires explicit developer approval of that revision.
+  `approved_digest` must match `plan_digest`.
+- Any material change or repository-baseline replacement increments the revision,
+  recomputes the digest, and resets both gates.
+- A detected repository baseline change makes the plan `STALE` until the new
+  revision is independently reviewed and explicitly approved.
+- `undetermined` classification is valid only before independent review approves
+  the plan for developer approval.
+- Release execution is forbidden unless the approved plan records
+  `AUTHORIZED_AFTER_VERIFICATION`; a `verified` verdict is still required first.

@@ -1,10 +1,10 @@
 {
   "name": "qaas-platform-dev",
-  "version": "0.3.0",
-  "description": "Spec-driven development guide for Smoke-team developers building the QaaS platform (TheSmokeTeam C#/.NET monorepo). Begins with mandatory ecosystem context, interviews the developer, prepares the smallest complete evidence-backed plan, independently reviews it, and blocks implementation until the developer explicitly approves the current revision. Composes optionally with Grill Me and Ponytail without requiring them.",
+  "version": "0.4.0",
+  "description": "Evidence-backed QaaS platform development from ecosystem context and developer interview through content-bound approval, test-first implementation, independent verification, and authorized release.",
   "author": { "name": "TheSmokeTeam" },
   "homepage": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "repository": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "license": "MIT",
-  "keywords": ["qaas", "platform-development", "ecosystem-context", "developer-interview", "human-approval", "spec-driven-development", "implementation-plan", "csharp", "dotnet", "monorepo", "framework", "hooks", "thesmoketeam"]
+  "keywords": ["qaas", "platform-development", "developer-interview", "spec-driven-development", "test-driven-development", "implementation-plan", "verification", "csharp", "dotnet", "monorepo", "thesmoketeam"]
 }

@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: missing-evidence
+tags: [planning, blocked]
+execution:
+  max_turns: 14
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]

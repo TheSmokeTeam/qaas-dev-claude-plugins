@@ -1,65 +1,47 @@
 ---
 name: add-framework-hook
 description: >-
-  Use when adding a new reflection-discovered hook to QaaS — an assertion,
-  generator, probe, or processor. These are Type A extensions: they implement an
-  interface from QaaS.Framework.SDK, ship in a separate QaaS.Common.* NuGet
-  package, and are discovered at runtime by name (no framework edit). Covers the
-  cross-repo flow from QaaS.Common.* through restore and PackageMirror to
-  qaas-docs. Keywords: new hook, add assertion, add generator, add probe, add
-  processor, IAssertion, IGenerator, IProbe, IProcessor, custom hook, Common
-  package.
+  Apply the Type A implementation overlay for a QaaS assertion, generator,
+  probe, or processor after implement-qaas-change validates an approved plan.
+  Use when live evidence proves the capability is an externally extensible,
+  reflection-discovered SDK hook shipped from a QaaS.Common.* package rather
+  than compiled into QaaS.Framework.
 ---
 
-# Add a Reflection Hook (Type A)
+# Add a Type A Reflection Hook
 
-A hook (assertion/generator/probe/processor) is **externally extensible**: you
-implement an `QaaS.Framework.SDK` contract in a `QaaS.Common.*` package; the
-runtime finds it by name via `QaaS.Framework.Providers`. You do NOT edit the
-framework. If you need a transport/serializer/policy instead, STOP — that is
-Type B; use `extend-framework-core`.
+Use this domain overlay through `implement-qaas-change`. If no current approved
+plan has passed that skill's revision and freshness gates, stop there.
 
-## Which contract
+## Stable architecture
 
-- `IAssertion` → `QaaS.Common.Assertions`
-- `IGenerator` → `QaaS.Common.Generators`
-- `IProbe` → `QaaS.Common.Probes`
-- `IProcessor` (incl. transaction processors) → `QaaS.Common.Processors`
+A Type A capability implements a public Framework SDK hook contract in the
+matching `QaaS.Common.*` package and is discovered at runtime. External packages
+can add one without editing Framework core. If live evidence shows that the
+platform team must edit and re-release Framework to add the member, route to
+`extend-framework-core` instead.
 
-## Workflow
+## Execution overlay
 
-1. **Require a current `APPROVED` plan.** Apply `plan-qaas-change` before editing.
-   The plan must verify the target Common repository, SDK contract, discovery
-   behavior, exact files/symbols, tests, and release follow-up. Stop on
-   `AWAITING_APPROVAL`, `NEEDS_DECISION`, `BLOCKED`, or `STALE`. Confirm the
-   technical-review verdict is `APPROVE`, developer approval is `APPROVED`, and
-   `approved_revision` matches `plan_revision`.
-2. **Open the target `QaaS.Common.*` repo and read its `CLAUDE.md` and
-   `project_specs.md` first** — they define the exact base classes, config-object
-   convention, naming, and `dotnet build/test` commands. Do not guess signatures.
-3. Implement the contract + its config object following the existing siblings in
-   that repo (e.g. mirror an existing assertion's structure).
-4. Add tests in the repo's `*.Tests` project (the repos use xUnit/NUnit; follow
-   the sibling tests).
-5. Build & test locally with the commands from that repo's `CLAUDE.md`
-   (typically `dotnet build <sln>` / `dotnet test <sln>`), then `csharpier`.
-6. The hook is selected by **string name in YAML**; confirm the discovery rules in
-   `QaaS.Framework.Providers/project_specs.md` (priority: `QaaS.*`=0, `Common.*`=1,
-   others=2; unique `FullName` else simple `Type.Name`).
-7. **Release ripple:** a new/bumped `Common.*` version → restore artifact →
-   `PackageMirror` sync → regenerated `qaas-docs` page. Hand off to the
-   `release-and-mirror` skill for that flow.
+1. Confirm the hook family, SDK contract, owning Common repository, and current
+   discovery/configuration convention from the live repository instructions and
+   Framework provider evidence.
+2. Follow the approved implementation sequence in order: establish the planned
+   failing behavioral test, implement the smallest contract/configuration
+   change by following a verified sibling, then run focused and full repository
+   checks.
+3. Confirm that the implementation depends only on the supported public SDK
+   surface and that its runtime name/configuration shape is covered by tests.
+4. Preserve the approved release handoff: Common package publication, restored
+   package evidence, PackageMirror sync, generated schema/catalog impact, and
+   documentation update where applicable.
 
-## Done when
+Do not hardcode current discovery priorities, base classes, signatures, package
+versions, or hook inventories from this plugin. Those facts belong to the live
+Common and Framework repositories.
 
-The hook + config object + tests exist in the correct `Common.*` repo, the repo's
-own build and test commands pass, and you have noted the release-ripple follow-up.
+## Domain completion
 
-## Failure modes
-
-- Putting the hook in `QaaS.Framework` (that makes it Type B and breaks the
-  open-extension model).
-- Inventing a base-class or config signature instead of reading the repo's
-  `CLAUDE.md`/siblings.
-- A `Common.*` package that depends on framework internals beyond the SDK contract.
-- Starting implementation from an unreviewed, developer-unapproved, or stale plan.
+The hook, configuration shape, behavioral tests, and repository checks match the
+approved plan, and the Common-package release work is either verified as
+authorized or handed off explicitly.

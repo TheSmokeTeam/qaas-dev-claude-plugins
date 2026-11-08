@@ -15,9 +15,10 @@ answer QaaS specifics from memory.
 
 ## Resolution order
 
-1. **In-tree repo docs (authoritative for in-repo detail).** Every `TheSmokeTeam`
-   repo has a root `CLAUDE.md` and per-project `project_specs.md`. For code-level
-   questions, open the owning repo and read these first. Map of owners:
+1. **In-tree repo docs (authoritative for in-repo detail).** Most implementation
+   repos have a root `CLAUDE.md` and relevant projects may have
+   `project_specs.md`. Read them first; use `README.md` when `CLAUDE.md` is
+   absent. Map of stable ownership areas:
    - hook contracts, protocols, policies, serialization, providers, config loader,
      executions → `QaaS.Framework` (per-project `project_specs.md`).
    - a specific assertion/generator/probe/processor → the matching `QaaS.Common.*`.

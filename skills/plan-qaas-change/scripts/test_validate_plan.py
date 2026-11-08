@@ -3,224 +3,335 @@
 
 from __future__ import annotations
 
-import unittest
+import re
 import sys
+import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate_plan import validate_text
+from validate_plan import compute_plan_digest, validate_text
 
 
-VALID_PLAN = """---
-schema_version: "3"
-plan_revision: 2
-change_id: qaas-normalize-name
-title: Normalize validator names
-change_kind: bugfix
-complexity: small
-status: APPROVED
-qaas_classification: existing-behavior
-repositories:
-  - name: TheSmokeTeam/QaaS.Framework
-    inspected_commit: 0123456789abcdef0123456789abcdef01234567
-review:
-  verdict: APPROVE
-developer_approval:
-  status: APPROVED
-  approved_revision: 2
----
+FIXTURE = Path(__file__).parent / "tests" / "fixtures" / "approved-plan.md"
+VALID_PLAN = FIXTURE.read_text(encoding="utf-8")
 
-# QaaS Change Specification and Implementation Plan
 
-## 1. Know QaaS Context Brief
-### Platform scope
-This changes QaaS platform validation, not end-user test authoring.
-### Ecosystem location
-QaaS.Framework owns the validator and its consumers remain in the framework.
-### Dependency position
-The validator sits in existing framework behavior with no new dependency edge.
-### Extension model
-Existing behavior; this is neither a Type A hook nor a new Type B family.
-### Release ripple
-The framework package follows its normal downstream release ripple if published.
-### Authority map
-The repository instructions and Validator source are authoritative.
-### Known unknowns
-None.
+def rebind_digest(text: str) -> str:
+    digest = compute_plan_digest(text)
+    text = re.sub(r"(?m)^plan_digest:.*$", f"plan_digest: {digest}", text)
 
-## 2. Developer interview record
-### Shared understanding
-Confirmed by the developer: Yes
-### Decisions
-| ID | Decision question | Agent recommendation | Developer decision | Rationale |
-|---|---|---|---|---|
-| D-1 | Include the nearby naming cleanup? | Exclude unrelated cleanup. | Exclude it. | Keep the bugfix minimal. |
-### Rejected scope and alternatives
-Renaming validators was rejected as unrelated scope.
+    def replace_bound_digest(match: re.Match[str]) -> str:
+        value = match.group(2).strip()
+        return match.group(0) if value == "null" else f"{match.group(1)} {digest}"
 
-## 3. Developer summary
-Normalize the fourth validator exactly like its three siblings.
-
-## 4. Request
-Fix mixed-case validation without unrelated cleanup.
-
-## 5. Current-state evidence
-| ID | Kind | Fact | Evidence | Confidence |
-|---|---|---|---|---|
-| E-1 | fact | Three siblings normalize names. | `QaaS.Framework/Validator.cs:10` | verified |
-
-## 6. Current behavior
-The fourth validator skips normalization and rejects mixed-case names.
-
-## 7. Desired-state specification
-### Invariants
-Existing validation behavior remains unchanged.
-### Acceptance criteria
-- AC-1: Given a mixed-case name, when the fourth validator runs, then validation succeeds.
-
-## 8. Impact map
-| Surface | Impact | Evidence or N/A reason |
-|---|---|---|
-| Tests | Add one regression test. | E-1 |
-
-## 9. Exact implementation sequence
-### Step P1 — Add the failing behavioral test
-- Repository: `TheSmokeTeam/QaaS.Framework`
-- File: `QaaS.Framework.Tests/ValidatorTests.cs`
-- Symbol: `ValidatorTests.AcceptsMixedCaseName`
-- Exact change: Add a regression test that supplies a mixed-case name.
-- Existing convention: `QaaS.Framework.Tests/ValidatorTests.cs:20`
-- Dependencies: None
-- Acceptance criteria: AC-1
-- Tests: T-1
-- Verification command: `dotnet test QaaS.Framework.sln`
-
-### Step P2 — Reuse the existing normalization helper
-- Repository: `TheSmokeTeam/QaaS.Framework`
-- File: `QaaS.Framework/Validator.cs`
-- Symbol: `Validator.Validate`
-- Exact change: Normalize the name before the existing comparison.
-- Existing convention: `QaaS.Framework/Validator.cs:10`
-- Dependencies: P1
-- Acceptance criteria: AC-1
-- Tests: T-1
-- Verification command: `dotnet test QaaS.Framework.sln`
-
-## 10. Traceability matrix
-| Acceptance criterion | Evidence | Implementation steps | Tests | Final verification |
-|---|---|---|---|---|
-| AC-1 | E-1 | P1, P2 | T-1 | `dotnet test QaaS.Framework.sln` |
-
-## 11. Test-first verification plan
-| Test ID | Level | Location | Scenario | Fails before? | Expected result |
-|---|---|---|---|---|---|
-| T-1 | unit | `ValidatorTests.AcceptsMixedCaseName` | Mixed-case name | Yes | Passes validation |
-
-## 12. Release and rollout
-N/A: local bugfix with no package contract change.
-
-## 13. Risks
-| Risk | Likelihood | Impact | Mitigation | Verification |
-|---|---|---|---|---|
-| Regression | Low | Medium | Reuse sibling helper | T-1 |
-
-## 14. Open decisions and missing evidence
-None.
-
-## 15. Review record
-| Finding | Severity | Disposition | Resulting plan change |
-|---|---|---|---|
-| None | — | — | Approved |
-
-## 16. Developer approval
-- Plan revision: 2
-- Presented to: developer
-- Decision: Approved
-- Approval evidence: developer explicitly approved revision 2 in the conversation
-- Invalidated by: material plan or inspected commit changes
-
-## 17. Implementation handoff
-- Starting repository and file: `QaaS.Framework.Tests/ValidatorTests.cs`
-- Repository order: QaaS.Framework
-- First failing test: T-1
-- Checkpoint commands: `dotnet test QaaS.Framework.sln`
-- Stop and re-plan when: inspected commit changes.
-"""
+    text = re.sub(
+        r"(?m)^(  reviewed_digest:)\s*(.+)$", replace_bound_digest, text
+    )
+    text = re.sub(
+        r"(?m)^(  approved_digest:)\s*(.+)$", replace_bound_digest, text
+    )
+    return text
 
 
 class ValidatePlanTests(unittest.TestCase):
+    def assert_error(self, text: str, fragment: str) -> None:
+        errors = validate_text(text)
+        self.assertTrue(
+            any(fragment in error for error in errors),
+            f"expected {fragment!r} in {errors!r}",
+        )
+
     def test_approved_complete_plan_passes(self) -> None:
         self.assertEqual(validate_text(VALID_PLAN), [])
 
     def test_reviewed_plan_can_wait_for_developer_approval(self) -> None:
-        awaiting = VALID_PLAN.replace(
-            "\nstatus: APPROVED\n", "\nstatus: AWAITING_APPROVAL\n"
-        )
-        awaiting = awaiting.replace("  status: APPROVED", "  status: PENDING")
-        awaiting = awaiting.replace("  approved_revision: 2", "  approved_revision: null")
-        awaiting = awaiting.replace("- Decision: Approved", "- Decision: Pending")
+        awaiting = VALID_PLAN.replace("status: APPROVED", "status: AWAITING_APPROVAL", 1)
+        awaiting = awaiting.replace("  status: APPROVED", "  status: PENDING", 1)
+        awaiting = awaiting.replace("  approved_revision: 2", "  approved_revision: null", 1)
         awaiting = awaiting.replace(
-            "developer explicitly approved revision 2 in the conversation",
-            "pending explicit developer approval",
+            "  approved_digest: sha256:7323bf628fc95679add0ac02fad6b4a5c31de979e7671b704f0048d73272f16a",
+            "  approved_digest: null",
+            1,
         )
+        awaiting = awaiting.replace("| 2 | Approved |", "| 2 | Pending |", 1)
         self.assertEqual(validate_text(awaiting), [])
 
-    def test_approved_plan_requires_explicit_developer_approval(self) -> None:
-        pending = VALID_PLAN.replace("  status: APPROVED", "  status: PENDING")
-        pending = pending.replace("  approved_revision: 2", "  approved_revision: null")
-        errors = validate_text(pending)
-        self.assertTrue(any("requires explicit developer approval" in error for error in errors))
+    def test_review_must_be_tied_to_current_revision(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("  reviewed_revision: 2", "  reviewed_revision: 1"),
+            "reviewed_revision must match",
+        )
 
     def test_approved_revision_must_match_current_revision(self) -> None:
-        errors = validate_text(VALID_PLAN.replace("  approved_revision: 2", "  approved_revision: 1"))
-        self.assertTrue(any("must match" in error for error in errors))
+        self.assert_error(
+            VALID_PLAN.replace("  approved_revision: 2", "  approved_revision: 1"),
+            "approved_revision must match",
+        )
 
-    def test_developer_approval_requires_revision_field(self) -> None:
-        errors = validate_text(VALID_PLAN.replace("  approved_revision: 2\n", ""))
-        self.assertTrue(any("missing approved_revision" in error for error in errors))
+    def test_short_commit_is_rejected(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace(
+                "0123456789abcdef0123456789abcdef01234567", "0123456"
+            ),
+            "full 40-character SHA",
+        )
+
+    def test_invalid_fingerprint_is_rejected(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("sha256:" + "a" * 64, "sha256:abc"),
+            "worktree_fingerprint",
+        )
+
+    def test_review_verdict_outside_review_mapping_does_not_count(self) -> None:
+        moved = VALID_PLAN.replace("  verdict: APPROVE\n", "  verdict: PENDING\n", 1)
+        moved = moved.replace("  reviewed_revision: 2", "  reviewed_revision: null", 1)
+        moved = moved.replace("developer_approval:\n", "verdict: APPROVE\ndeveloper_approval:\n", 1)
+        self.assert_error(moved, "requires review verdict APPROVE")
+
+    def test_non_approved_state_resets_developer_approval(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("status: APPROVED", "status: STALE", 1),
+            "non-APPROVED plan must reset",
+        )
 
     def test_approved_plan_rejects_placeholder(self) -> None:
-        errors = validate_text(VALID_PLAN.replace("Normalize the name", "TODO"))
-        self.assertTrue(any("placeholder: TODO" in error for error in errors))
-
-    def test_approved_plan_requires_step_fields(self) -> None:
-        errors = validate_text(
-            VALID_PLAN.replace("- Symbol: `Validator.Validate`\n", "")
-        )
-        self.assertTrue(any("P2 is missing populated field: Symbol" in error for error in errors))
-
-    def test_approved_plan_requires_complete_know_qaas_brief(self) -> None:
-        errors = validate_text(
-            VALID_PLAN.replace("### Dependency position\n", "")
-        )
-        self.assertTrue(
-            any("Know QaaS Context Brief is missing heading" in error for error in errors)
+        self.assert_error(
+            VALID_PLAN.replace("Normalize the name", "TODO"),
+            "placeholder: TODO",
         )
 
-    def test_approved_plan_rejects_empty_know_qaas_section(self) -> None:
-        errors = validate_text(
+    def test_approved_plan_rejects_frontmatter_placeholder(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("title: Normalize validator names", "title: <change title>"),
+            "placeholder: angle-bracket placeholder",
+        )
+
+    def test_completed_review_rejects_pending_evidence(self) -> None:
+        self.assert_error(
             VALID_PLAN.replace(
-                "### Dependency position\nThe validator sits in existing framework behavior with no new dependency edge.\n",
-                "### Dependency position\n",
+                "evidence: qaas-plan-reviewer approved revision 2 and its digest.",
+                "evidence: Pending",
+                1,
+            ),
+            "completed review requires resolved evidence",
+        )
+
+    def test_completed_approval_rejects_pending_evidence(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace(
+                "evidence: Developer explicitly approved revision 2 and its digest in this task.",
+                "evidence: Pending",
+                1,
+            ),
+            "completed developer approval decision requires resolved evidence",
+        )
+
+    def test_review_block_scalar_marker_is_not_evidence(self) -> None:
+        plan = VALID_PLAN.replace(
+            "evidence: qaas-plan-reviewer approved revision 2 and its digest.",
+            "evidence: |",
+            1,
+        )
+        self.assert_error(rebind_digest(plan), "review is missing evidence")
+
+    def test_commented_block_scalar_marker_is_not_evidence(self) -> None:
+        plan = VALID_PLAN.replace(
+            "evidence: qaas-plan-reviewer approved revision 2 and its digest.",
+            "evidence: | # intentionally empty",
+            1,
+        )
+        self.assert_error(rebind_digest(plan), "review is missing evidence")
+
+    def test_approval_block_scalar_marker_is_not_evidence(self) -> None:
+        plan = VALID_PLAN.replace(
+            "evidence: Developer explicitly approved revision 2 and its digest in this task.",
+            "evidence: >-",
+            1,
+        )
+        self.assert_error(rebind_digest(plan), "developer_approval is missing evidence")
+
+    def test_release_block_scalar_marker_is_not_a_target(self) -> None:
+        plan = VALID_PLAN.replace(
+            "authorization: NOT_AUTHORIZED",
+            "authorization: AUTHORIZED_AFTER_VERIFICATION",
+            1,
+        ).replace(
+            "targets: QaaS.Framework package and verified downstream handoff",
+            "targets: |",
+            1,
+        )
+        self.assert_error(rebind_digest(plan), "release is missing targets")
+
+    def test_material_body_change_breaks_plan_digest(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace(
+                "Normalize the name before the existing comparison.",
+                "Replace the validator with a permissive implementation.",
+            ),
+            "plan_digest does not match",
+        )
+
+    def test_duplicate_top_level_lifecycle_key_is_rejected(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace(
+                "status: APPROVED", "status: APPROVED\nstatus: STALE", 1
+            ),
+            "duplicate top-level key: status",
+        )
+
+    def test_nested_approval_status_cannot_replace_top_level_status(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("status: APPROVED\n", "", 1),
+            "frontmatter is missing status",
+        )
+
+    def test_checkout_must_be_absolute(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("checkout: /workspace/", "checkout: workspace/", 1),
+            "checkout must be an absolute path",
+        )
+
+    def test_authorized_release_requires_explicit_targets(self) -> None:
+        authorized = VALID_PLAN.replace(
+            "authorization: NOT_AUTHORIZED",
+            "authorization: AUTHORIZED_AFTER_VERIFICATION",
+            1,
+        ).replace(
+            "targets: QaaS.Framework package and verified downstream handoff",
+            "targets: N/A",
+            1,
+        )
+        self.assert_error(
+            rebind_digest(authorized),
+            "authorized release requires explicit targets",
+        )
+
+    def test_csharp_generic_is_not_an_angle_placeholder(self) -> None:
+        generic = rebind_digest(
+            VALID_PLAN.replace("`Validator.Validate`", "`Validator<T>.Validate`", 1)
+        )
+        self.assertEqual(validate_text(generic), [])
+
+    def test_dotnet_xml_name_is_not_an_angle_placeholder(self) -> None:
+        xml = rebind_digest(
+            VALID_PLAN.replace(
+                "The validator is existing framework behavior with no new dependency edge.",
+                "The <PackageReference> remains unchanged and adds no dependency edge.",
+                1,
             )
         )
-        self.assertTrue(
-            any("Know QaaS Context Brief has empty section" in error for error in errors)
+        self.assertEqual(validate_text(xml), [])
+
+    def test_ellipsis_step_value_is_rejected(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace(
+                "- Exact change: Normalize the name before the existing comparison.",
+                "- Exact change: ...",
+            ),
+            "placeholder: ellipsis placeholder",
         )
 
-    def test_reviewed_plan_requires_confirmed_developer_interview(self) -> None:
-        errors = validate_text(
-            VALID_PLAN.replace("Confirmed by the developer: Yes", "Confirmed by the developer: No")
+    def test_step_requires_all_fields(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("- Symbol: `Validator.Validate`\n", ""),
+            "P2 is missing populated field: Symbol",
         )
-        self.assertTrue(any("confirm shared understanding" in error for error in errors))
 
-    def test_blocked_plan_allows_incomplete_body(self) -> None:
-        blocked = VALID_PLAN.replace("\nstatus: APPROVED\n", "\nstatus: BLOCKED\n")
-        blocked = blocked.replace("  verdict: APPROVE", "  verdict: BLOCK")
-        blocked = blocked.replace("  status: APPROVED", "  status: PENDING")
-        blocked = blocked.replace("  approved_revision: 2", "  approved_revision: null")
+    def test_implementation_step_ids_must_be_unique(self) -> None:
+        duplicate = rebind_digest(
+            VALID_PLAN.replace("### Step P2", "### Step P1", 1)
+        )
+        self.assert_error(duplicate, "implementation step IDs must be unique")
+
+    def test_implementation_step_ids_must_be_contiguous(self) -> None:
+        skipped = rebind_digest(
+            VALID_PLAN.replace("### Step P2", "### Step P3", 1)
+        )
+        self.assert_error(skipped, "contiguous and ordered P1..Pn")
+
+    def test_acceptance_criterion_ids_must_be_unique(self) -> None:
+        original = (
+            "- AC-1: Given a mixed-case valid name, when the fourth validator runs, "
+            "then validation succeeds."
+        )
+        duplicate = rebind_digest(VALID_PLAN.replace(original, f"{original}\n{original}", 1))
+        self.assert_error(duplicate, "acceptance criterion IDs must be unique")
+
+    def test_test_ids_must_be_unique(self) -> None:
+        row = (
+            "| T-1 | unit | `ValidatorTests.AcceptsMixedCaseName` | Mixed-case "
+            "valid name | Yes | Validation succeeds |"
+        )
+        duplicate = rebind_digest(VALID_PLAN.replace(row, f"{row}\n{row}", 1))
+        self.assert_error(duplicate, "test IDs must be unique")
+
+    def test_know_qaas_section_cannot_be_empty(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace(
+                "#### Dependency position\nThe validator is existing framework behavior with no new dependency edge.\n",
+                "#### Dependency position\n",
+            ),
+            "Know QaaS Context Brief has empty section",
+        )
+
+    def test_developer_must_confirm_shared_understanding(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("Confirmed by the developer: Yes", "Confirmed by the developer: No"),
+            "confirm shared understanding",
+        )
+
+    def test_acceptance_criterion_requires_traceability_row(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("| AC-1 | E-1 | P1, P2 | T-1 | `dotnet test QaaS.Framework.sln` |\n", ""),
+            "AC-1 is missing from the traceability matrix",
+        )
+
+    def test_numbered_sections_must_be_in_order(self) -> None:
+        heading_a = "## 3. Current State and Evidence"
+        heading_b = "## 4. Desired State and Acceptance Criteria"
+        swapped = VALID_PLAN.replace(heading_a, "## TEMP", 1)
+        swapped = swapped.replace(heading_b, heading_a, 1).replace("## TEMP", heading_b, 1)
+        self.assert_error(swapped, "sections must appear in schema order")
+
+    def test_blocked_plan_may_have_incomplete_body(self) -> None:
+        blocked = VALID_PLAN.replace("status: APPROVED", "status: BLOCKED", 1)
+        blocked = blocked.replace("  verdict: APPROVE", "  verdict: BLOCK", 1)
+        blocked = blocked.replace("  reviewed_revision: 2", "  reviewed_revision: null", 1)
+        blocked = re.sub(
+            r"(?m)^  reviewed_digest:.*$", "  reviewed_digest: null", blocked, count=1
+        )
+        blocked = blocked.replace(
+            "  evidence: qaas-plan-reviewer approved revision 2 and its digest.",
+            "  evidence: Pending",
+            1,
+        )
+        blocked = blocked.replace("  verdict: BLOCK", "  verdict: PENDING", 1)
+        blocked = blocked.replace("  status: APPROVED", "  status: PENDING", 1)
+        blocked = blocked.replace("  approved_revision: 2", "  approved_revision: null", 1)
+        blocked = re.sub(
+            r"(?m)^  approved_digest:.*$", "  approved_digest: null", blocked, count=1
+        )
         blocked = blocked.split("# QaaS Change", 1)[0] + "# QaaS Change\nMissing source access.\n"
+        blocked = rebind_digest(blocked)
         self.assertEqual(validate_text(blocked), [])
+
+    def test_refactor_is_a_supported_change_kind(self) -> None:
+        self.assertEqual(
+            validate_text(
+                rebind_digest(
+                    VALID_PLAN.replace(
+                        "change_kind: bugfix", "change_kind: refactor", 1
+                    )
+                )
+            ),
+            [],
+        )
+
+    def test_approved_plan_cannot_remain_undetermined(self) -> None:
+        self.assert_error(
+            VALID_PLAN.replace("qaas_classification: existing-behavior", "qaas_classification: undetermined"),
+            "cannot have undetermined classification",
+        )
 
 
 if __name__ == "__main__":

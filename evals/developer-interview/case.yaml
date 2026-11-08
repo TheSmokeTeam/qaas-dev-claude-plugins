@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: developer-interview
+tags: [planning, interview, approval-gate]
+execution:
+  max_turns: 10
+  timeout_seconds: 240
+  allowed_tools: [Skill]

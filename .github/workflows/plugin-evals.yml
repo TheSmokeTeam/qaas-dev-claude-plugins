@@ -17,10 +17,15 @@ on:
         default: "3"
         type: string
       threshold:
-        description: Required with-plugin score for every case
+        description: Required conformance score for every case
         required: true
-        default: "0.9"
+        default: "1.0"
         type: string
+      run_ablation:
+        description: Also measure lift against the no-plugin baseline
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   evaluate:
@@ -30,30 +35,50 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       - name: Require evaluation credentials
         run: test -n "$ANTHROPIC_API_KEY"
 
       - name: Install Claude Code
-        run: npm install --global @anthropic-ai/claude-code
+        run: npm install --global @anthropic-ai/claude-code@2.1.312
 
       - name: Validate plugin structure
         run: claude plugin validate .
 
-      - name: Run isolated behavioral evals
+      - name: Run plugin conformance evals
         run: |
           mkdir -p evals/results
           claude plugin eval . \
             --scaffold \
             --trust-plugin \
+            --allow-tools Bash Write Edit \
+            --model "${{ inputs.agent_model }}" \
+            --judge-model "${{ inputs.judge_model }}" \
+            --runs "${{ inputs.runs }}" \
+            --ablation none \
+            --threshold "${{ inputs.threshold }}" \
+            --max-cost-usd 30 \
+            --no-publish \
+            --json evals/results/conformance.json
+
+      - name: Measure plugin lift
+        if: ${{ inputs.run_ablation }}
+        run: |
+          claude plugin eval . \
+            --scaffold \
+            --trust-plugin \
+            --allow-tools Bash Write Edit \
             --model "${{ inputs.agent_model }}" \
             --judge-model "${{ inputs.judge_model }}" \
             --runs "${{ inputs.runs }}" \
             --ablation with-without \
-            --threshold "${{ inputs.threshold }}" \
+            --threshold 0 \
             --max-cost-usd 30 \
             --no-publish \
-            --json evals/results/ci.json
+            --json evals/results/ablation.json
 
       - name: Upload evaluation report
         if: always()

@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/init-repository.sh"
+
 mkdir -p QaaS.Framework/src QaaS.Framework/tests
 cat > QaaS.Framework/CLAUDE.md <<'EOF'
 # QaaS.Framework fixture
 
-Snapshot commit: 1111111111111111111111111111111111111111
 Build: `dotnet build QaaS.Framework.sln`
 Test: `dotnet test QaaS.Framework.sln`
 Format: `dotnet csharpier check .`
@@ -49,3 +51,7 @@ public sealed class FourthValidatorTests
     public void AcceptsCanonicalName() => Assert.True(new FourthValidator().Validate("EXPECTED"));
 }
 EOF
+
+init_fixture_repository \
+  QaaS.Framework \
+  https://github.com/TheSmokeTeam/QaaS.Framework.git

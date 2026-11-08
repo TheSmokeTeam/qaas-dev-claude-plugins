@@ -3,3 +3,7 @@ name: type-a-feature
 tags: [planning, feature, type-a]
 context:
   scaffold_script: scaffold.sh
+execution:
+  max_turns: 24
+  timeout_seconds: 600
+  allowed_tools: [Read, Glob, Grep, Bash, Skill, Agent]

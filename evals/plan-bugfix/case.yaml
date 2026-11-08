@@ -3,3 +3,7 @@ name: plan-bugfix
 tags: [planning, bugfix, smoke]
 context:
   scaffold_script: scaffold.sh
+execution:
+  max_turns: 24
+  timeout_seconds: 600
+  allowed_tools: [Read, Glob, Grep, Bash, Skill, Agent]

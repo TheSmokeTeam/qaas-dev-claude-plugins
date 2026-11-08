@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/init-repository.sh"
+
 mkdir -p QaaS.Framework/Serialization QaaS.Framework/Serialization.Tests QaaS.Runner
 cat > QaaS.Framework/CLAUDE.md <<'EOF'
 # QaaS.Framework fixture
 
-Snapshot commit: 3333333333333333333333333333333333333333
 Serialization formats are a closed, compiled framework family. Build with
 `dotnet build QaaS.Framework.sln`, test with `dotnet test QaaS.Framework.sln`,
 and check formatting with `dotnet csharpier check .`.
@@ -56,7 +58,6 @@ EOF
 cat > QaaS.Runner/CLAUDE.md <<'EOF'
 # QaaS.Runner fixture
 
-Snapshot commit: 4444444444444444444444444444444444444444
 Runner consumes released QaaS.Framework packages. Verify package edges in csproj
 and build with `dotnet build QaaS.Runner.sln`.
 EOF
@@ -67,3 +68,10 @@ cat > QaaS.Runner/QaaS.Runner.csproj <<'EOF'
   </ItemGroup>
 </Project>
 EOF
+
+init_fixture_repository \
+  QaaS.Framework \
+  https://github.com/TheSmokeTeam/QaaS.Framework.git
+init_fixture_repository \
+  QaaS.Runner \
+  https://github.com/TheSmokeTeam/QaaS.Runner.git

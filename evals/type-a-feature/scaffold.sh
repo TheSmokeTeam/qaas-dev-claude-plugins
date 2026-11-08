@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/init-repository.sh"
+
 mkdir -p QaaS.Common.Generators/src QaaS.Common.Generators/tests
 cat > QaaS.Common.Generators/CLAUDE.md <<'EOF'
 # QaaS.Common.Generators fixture
 
-Snapshot commit: 2222222222222222222222222222222222222222
 Generators implement QaaS.Framework.SDK IGenerator, use a sibling config record,
 and are runtime-discovered by name. Build with `dotnet build
 QaaS.Common.Generators.sln`; test with `dotnet test QaaS.Common.Generators.sln`.
@@ -22,6 +24,7 @@ public sealed class ConstantGenerator : IGenerator
     public object Generate(ConstantGeneratorConfig config) => config.Value;
 }
 EOF
+
 cat > QaaS.Common.Generators/tests/ConstantGeneratorTests.cs <<'EOF'
 public sealed class ConstantGeneratorTests
 {
@@ -29,3 +32,7 @@ public sealed class ConstantGeneratorTests
     public void ReturnsConfiguredValue() { }
 }
 EOF
+
+init_fixture_repository \
+  QaaS.Common.Generators \
+  https://github.com/TheSmokeTeam/QaaS.Common.Generators.git
