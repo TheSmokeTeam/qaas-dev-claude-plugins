@@ -3,14 +3,14 @@
   "owner": { "name": "TheSmokeTeam" },
   "metadata": {
     "description": "Smoke-team plugin marketplace for QaaS platform development.",
-    "version": "0.2.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
       "name": "qaas-platform-dev",
       "source": ".",
-      "description": "Cross-repo guide for building the QaaS platform: repo map, framework dependency graph, release ripple, and the Type A (reflection hooks) vs Type B (compiled framework core) extension mechanisms.",
-      "version": "0.2.0",
+      "description": "End-to-end QaaS platform development with live evidence, content-bound approval, test-first implementation, verification, and release discipline.",
+      "version": "0.4.0",
       "category": "development",
       "tags": ["qaas", "platform-development", "csharp", "dotnet", "monorepo"]
     }

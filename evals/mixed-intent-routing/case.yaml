@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: mixed-intent-routing
+tags: [orchestration, planning, interview, approval-gate]
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Skill]

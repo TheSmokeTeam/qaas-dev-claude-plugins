@@ -1,10 +1,10 @@
 {
   "name": "qaas-platform-dev",
-  "version": "0.2.0",
-  "description": "Cross-repo guide for Smoke-team developers building the QaaS platform (TheSmokeTeam C#/.NET monorepo). Knows the multi-repo map, the framework dependency graph, the release ripple, and the two extension mechanisms — Type A reflection hooks (Common.* packages) vs Type B compiled framework core (protocols, serialization, policies). Delegates in-repo detail to each repo's CLAUDE.md and the live docs at docs.qaas.online.",
+  "version": "0.4.0",
+  "description": "Evidence-backed QaaS platform development from ecosystem context and developer interview through content-bound approval, test-first implementation, independent verification, and authorized release.",
   "author": { "name": "TheSmokeTeam" },
   "homepage": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "repository": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "license": "MIT",
-  "keywords": ["qaas", "platform-development", "csharp", "dotnet", "monorepo", "framework", "hooks", "thesmoketeam"]
+  "keywords": ["qaas", "platform-development", "developer-interview", "spec-driven-development", "test-driven-development", "implementation-plan", "verification", "csharp", "dotnet", "monorepo", "thesmoketeam"]
 }

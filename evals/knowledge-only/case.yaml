@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: knowledge-only
+tags: [knowledge, negative-trigger]
+execution:
+  max_turns: 8
+  timeout_seconds: 180
+  allowed_tools: [Skill]

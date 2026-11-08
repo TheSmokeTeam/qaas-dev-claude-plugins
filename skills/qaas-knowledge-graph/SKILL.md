@@ -20,7 +20,7 @@ Never build a graph from the open repository.
 2. Run the bundled wrapper from the user's current workspace:
 
    ```bash
-   python3 <skill-directory>/scripts/qaas_graph.py query \
+   python3 "${CLAUDE_PLUGIN_ROOT}/skills/qaas-knowledge-graph/scripts/qaas_graph.py" query \
      --workspace "$PWD" \
      --question "<question>" \
      --budget 2000
