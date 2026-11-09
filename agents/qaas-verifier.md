@@ -19,7 +19,7 @@ repair the implementation.
 
 ## Required input
 
-- Raw request, Know QaaS Context Brief, and approved plan revision.
+- Raw request, Know QaaS Context Brief, and approved plan.
 - Final diff and the implementer's raw command output.
 - Paths to affected checkouts.
 

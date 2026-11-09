@@ -69,7 +69,7 @@ for agent in "$ROOT"/agents/*.md; do
 done
 
 echo "==> non-editing agent boundaries"
-for name in qaas-change-planner qaas-plan-reviewer qaas-verifier; do
+for name in qaas-plan-reviewer qaas-verifier; do
   agent="$ROOT/agents/$name.md"
   [ -f "$agent" ] || { err "missing agent: $agent"; continue; }
   fm="$(frontmatter "$agent")"
@@ -80,8 +80,6 @@ done
 run_check "portable AGENTS.md is current" "$ROOT/scripts/build-agents-md.sh" --check
 run_check "Python syntax" python3 -m compileall -q "$ROOT/scripts" "$ROOT/skills"
 run_check "repository utility unit tests" python3 -m unittest discover -q "$ROOT/scripts"
-run_check "plan and baseline unit tests" \
-  python3 -m unittest discover -q "$ROOT/skills/plan-qaas-change/scripts"
 run_check "knowledge graph wrapper unit tests" \
   python3 -m unittest discover -q "$ROOT/skills/qaas-knowledge-graph/scripts"
 run_check "eval layout" python3 "$ROOT/scripts/lint-evals.py" "$ROOT/evals"

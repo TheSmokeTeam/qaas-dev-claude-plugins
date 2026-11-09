@@ -21,10 +21,10 @@ no-plugin ablation.
 Planning cases intentionally do not grant editing tools. `implementation-pending`
 is the dedicated negative case: it grants mutation tools and verifies that they
 remain unused before approval. `implementation-approved` exercises the positive
-test-first path, plan digest and repository-baseline checks, independent verifier,
-and no-release boundary. Its deterministic graders inspect the final source and
-test, require test-edit/failing-run/source-edit ordering, and accept the success
-sentinel only after the focused check passes. The runner passes matching
+test-first path, source-fact refresh, independent verifier, and no-release
+boundary. Its deterministic graders inspect the final source and test, require
+test-edit/failing-run/source-edit ordering, and accept the success sentinel only
+after the focused check passes. The runner passes matching
 `--tools` and `--allowedTools` values from each case, so only declared tools reach
 the agent.
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$SCRIPT_DIR/../lib/init-repository.sh"
 
 mkdir -p QaaS.Framework/src QaaS.Framework/tests
@@ -38,23 +37,4 @@ init_fixture_repository \
   QaaS.Framework \
   https://github.com/TheSmokeTeam/QaaS.Framework.git
 
-checkout="$(git -C QaaS.Framework rev-parse --show-toplevel)"
-commit="$(git -C QaaS.Framework rev-parse HEAD)"
-fingerprint="$(
-  python3 "$PLUGIN_ROOT/skills/plan-qaas-change/scripts/repo_snapshot.py" QaaS.Framework \
-    | python3 -c 'import json,sys; print(json.load(sys.stdin)["worktree_fingerprint"])'
-)"
-
-sed \
-  -e "s|__CHECKOUT__|$checkout|g" \
-  -e "s|__COMMIT__|$commit|g" \
-  -e "s|__FINGERPRINT__|$fingerprint|g" \
-  "$SCRIPT_DIR/approved-plan.template.md" > approved-plan.md
-
-digest="$(
-  python3 "$PLUGIN_ROOT/skills/plan-qaas-change/scripts/validate_plan.py" \
-    --print-digest approved-plan.md
-)"
-sed "s|__DIGEST__|$digest|g" approved-plan.md > approved-plan.bound.md
-mv approved-plan.bound.md approved-plan.md
-python3 "$PLUGIN_ROOT/skills/plan-qaas-change/scripts/validate_plan.py" approved-plan.md
+cp "$SCRIPT_DIR/approved-plan.fixture.md" approved-plan.md

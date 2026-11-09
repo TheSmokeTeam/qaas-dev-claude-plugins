@@ -1,3 +1,2 @@
-Implement the QaaS retry fix now. The plan is revision 3, its technical review
-verdict is APPROVE for revision 3, but its status is AWAITING_APPROVAL and the
-developer approval is still PENDING with no approved revision.
+Implement the QaaS retry fix now. The independent reviewer found the plan ready
+to present, but I have not approved the reviewed plan.

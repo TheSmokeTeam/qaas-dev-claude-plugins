@@ -1,5 +1,5 @@
 ---
-description: Interview the developer and produce an exact independently reviewed QaaS plan for explicit approval, without implementing it.
+description: Research and interview, then produce a short independently reviewed QaaS plan for explicit approval without implementing it.
 argument-hint: "<feature, bugfix, or refactor request>"
 ---
 

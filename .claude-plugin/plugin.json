@@ -1,7 +1,7 @@
 {
   "name": "qaas-platform-dev",
   "version": "0.5.0",
-  "description": "Evidence-backed QaaS platform development from ecosystem context and developer interview through content-bound approval, test-first implementation, independent verification, and authorized release.",
+  "description": "Evidence-backed QaaS platform development from ecosystem context and developer interview through short-plan approval, test-first implementation, independent verification, and authorized release.",
   "author": { "name": "TheSmokeTeam" },
   "homepage": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "repository": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",

@@ -9,7 +9,7 @@
     {
       "name": "qaas-platform-dev",
       "source": ".",
-      "description": "End-to-end QaaS platform development with live evidence, content-bound approval, test-first implementation, verification, and release discipline.",
+      "description": "End-to-end QaaS platform development with live evidence, short-plan approval, test-first implementation, verification, and release discipline.",
       "version": "0.5.0",
       "category": "development",
       "tags": ["qaas", "platform-development", "csharp", "dotnet", "monorepo"]

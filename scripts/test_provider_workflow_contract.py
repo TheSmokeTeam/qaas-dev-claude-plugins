@@ -11,7 +11,7 @@ PLANNER_SKILL = ROOT / "skills/plan-qaas-change/SKILL.md"
 IMPLEMENTER = ROOT / "skills/implement-qaas-change/SKILL.md"
 AGENTS = {
     name: ROOT / f"agents/{name}.md"
-    for name in ("qaas-change-planner", "qaas-plan-reviewer", "qaas-verifier")
+    for name in ("qaas-plan-reviewer", "qaas-verifier")
 }
 
 
@@ -31,7 +31,8 @@ class ProviderWorkflowContractTests(unittest.TestCase):
     def test_planning_routes_interview_only_when_a_decision_interview_is_needed(self) -> None:
         planning = self.text(PLANNER_SKILL)
 
-        self.assertIn("`mattpocock-skills:grilling`", planning)
+        self.assertIn("references/developer-interview.md", planning)
+        self.assertNotIn("Provider: mattpocock-skills:grilling — SUCCEEDED", planning)
         for exclusion in (
             "knowledge-only",
             "status",
@@ -42,7 +43,7 @@ class ProviderWorkflowContractTests(unittest.TestCase):
 
     def test_ponytail_full_is_required_by_every_scope_owner(self) -> None:
         owners = {
-            "planner": self.text(AGENTS["qaas-change-planner"]),
+            "planner": self.text(PLANNER_SKILL),
             "implementer": self.text(IMPLEMENTER),
             "reviewer": self.text(AGENTS["qaas-plan-reviewer"]),
             "verifier": self.text(AGENTS["qaas-verifier"]),
@@ -85,22 +86,6 @@ class ProviderWorkflowContractTests(unittest.TestCase):
                 frontmatter = self.text(path).split("\n---\n", 1)[0]
                 self.assertNotRegex(frontmatter, r"(?m)^\s+- ponytail")
 
-    def test_plan_schema_remains_version_four(self) -> None:
-        template = self.text(
-            ROOT / "skills/plan-qaas-change/references/plan-template.md"
-        )
-        validator = self.text(
-            ROOT / "skills/plan-qaas-change/scripts/validate_plan.py"
-        )
-        fixture = self.text(
-            ROOT
-            / "skills/plan-qaas-change/scripts/tests/fixtures/approved-plan.md"
-        )
-
-        self.assertRegex(template, r'(?m)^schema_version: "4"$')
-        self.assertRegex(fixture, r'(?m)^schema_version: "4"$')
-        self.assertNotRegex(validator, r"schema_version[^\n]*[" + "']5")
-
     def test_manual_eval_ci_loads_pinned_providers_and_focused_runner(self) -> None:
         workflow = self.text(ROOT / ".github/workflows/plugin-evals.yml")
 
@@ -124,7 +109,7 @@ class ProviderWorkflowContractTests(unittest.TestCase):
             "webhookUrl",
             "Bearer token",
             "ledger` user setting to false",
-            "schema-4",
+            "does not impose plan-state metadata",
             "BLOCKED_PROVIDER",
         ):
             self.assertIn(required, readme)

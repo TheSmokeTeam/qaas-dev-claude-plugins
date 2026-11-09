@@ -21,9 +21,9 @@ unless the approved scope says so.
    `QaaS.PackageMirror`'s `CLAUDE.md`, `README.md`, and workflows.
 3. Confirm explicit release authorization, target repositories, versions,
    dependency order, and rollback expectation.
-4. For a planned change, require a `verified` implementation and either
-   `release.authorization: AUTHORIZED_AFTER_VERIFICATION` in the developer-
-   approved plan or a separate developer authorization for the exact targets.
+4. For a planned change, require a verified implementation and explicit
+   developer authorization for the exact release targets in the current
+   conversation or a trusted handoff.
 5. Stop rather than infer a package version, tag, workflow, tracked repository,
    artifact contract, or downstream edge.
 

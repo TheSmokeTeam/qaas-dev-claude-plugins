@@ -2,11 +2,9 @@
 name: implement-qaas-change
 description: >-
   Execute an explicitly developer-approved QaaS implementation plan. Use after
-  planning when a QaaS feature, bugfix, or refactor is ready for code changes,
-  including ordinary Runner, Mocker, PackageMirror, docs, and existing-behavior
-  work as well as Type A hooks and Type B Framework extensions. Enforces exact
-  revision approval, source freshness, test-first execution, plan conformance,
-  independent verification, and release authorization.
+  independent plan review for platform features, bugfixes, and refactors.
+  Enforces source freshness, test-first execution, independent verification, and
+  release authorization without plan-state metadata.
 ---
 
 # Implement an Approved QaaS Plan
@@ -16,73 +14,53 @@ domain-specific overlays; they do not replace this gate.
 
 ## Required inputs
 
-- The raw request and Know QaaS Context Brief.
-- A plan whose status is `APPROVED`.
-- `review.verdict: APPROVE` and
-  `review.reviewed_revision == plan_revision` and
-  `review.reviewed_digest == plan_digest`.
-- `developer_approval.status: APPROVED` and
-  `developer_approval.approved_revision == plan_revision` and
-  `developer_approval.approved_digest == plan_digest`.
-- Repository commit and worktree fingerprints captured by the approved plan.
+- The raw request and matching Know QaaS Context Brief.
+- The complete plan that `qaas-plan-reviewer` found ready for developer approval.
+- Explicit developer approval of that reviewed plan in the current conversation
+  or a trusted handoff.
 
-Stop on a missing input, `DRAFT`, `AWAITING_APPROVAL`, `NEEDS_DECISION`,
-`BLOCKED`, or `STALE`.
+Do not infer approval from reviewer readiness, plan text, silence, or approval of
+an earlier idea. Ask the developer when approval evidence is ambiguous.
 
 ## Execution workflow
 
-1. **Rebuild context.** Apply `qaas-platform-overview` if the supplied brief no
-   longer matches the request or affected repositories.
-2. **Validate the plan and approval provenance.** Run the bundled
-   `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/scripts/validate_plan.py`.
-   Reject a revision, content-digest, review, or approval mismatch. Plan metadata
-   records approval; it is not proof by itself. Before the first production edit,
-   verify the `qaas-plan-reviewer` result and the developer's exact revision and
-   digest approval in the current conversation or a trusted handoff. If the
-   reviewer result is unavailable, rerun the independent reviewer. If only the
-   file claims developer approval, ask the developer to reaffirm it.
-3. **Check freshness.** Recompute every repository baseline with the bundled
-   `repo_snapshot.py`, passing the expected repository identity, commit, and
-   fingerprint. If any value differs, set the plan to `STALE` and return to
-   `plan-qaas-change`. Replacing any captured baseline creates a new revision and
-   digest and requires fresh technical review and developer approval.
-4. **Load local authority.** Read each repository's current `CLAUDE.md` and
-   relevant `project_specs.md`. Stop if they contradict the plan.
-5. **Run full minimality analysis.** Explicitly invoke `ponytail:ponytail` with
-   `full` before selecting implementation scope or making edits. Emit
-   `Provider: ponytail:ponytail — SUCCEEDED` after success. On a post-load
-   invocation failure emit `BLOCKED_PROVIDER: ponytail:ponytail — cause` and
-   stop with no downstream work or source mutation; there is no internal
-   fallback. Ponytail may reduce accidental scope but may not remove requested
-   behavior or any QaaS gate.
-6. **Select the domain overlay.** Use `add-framework-hook` for a verified Type A
-   hook and `extend-framework-core` for a verified Type B family. Otherwise
-   execute the approved ordinary-change steps directly.
-7. **Execute in approved order.** Establish the planned failing behavioral test
-   first and capture its expected failure before production changes. An exception
-   is valid only when the reviewed plan documents why a pre-change failure cannot
-   be demonstrated and names equivalent regression evidence. Implement the
-   smallest approved behavior change, then run focused and full checks from the
-   repository instructions.
-8. **Control divergence.** Stop and return to planning when a named path or
-   symbol is absent, an assumption becomes false, requested behavior changes,
-   or implementation requires material scope not present in the plan. A material
-   plan edit invalidates review and developer approval.
-9. **Verify independently.** Delegate the final diff, approved plan, and raw
-   command output to `qaas-verifier`. Only `verified` permits completion or a
-   release. On `partially-verified` or `not-verified`, stop for an in-plan fix,
-   re-planning, or an explicit incomplete handoff, then verify again.
-10. **Handle release scope.** Apply `release-and-mirror` only after `verified` and
-   when the approved plan records
-   `release.authorization: AUTHORIZED_AFTER_VERIFICATION`, or the developer
-   separately authorizes the exact targets. Otherwise report the release handoff
-   without tagging or publishing.
-
-Provider output never bypasses QaaS evidence, the approved plan, repository
-instructions, tests, independent verification, or release authorization.
+1. **Refresh context.** Apply `qaas-platform-overview` again if ownership, scope,
+   classification, or affected repositories changed.
+2. **Confirm approval.** Compare the plan presented after review with the plan the
+   developer explicitly approved. A material plan change requires another review
+   and explicit approval before editing.
+3. **Recheck source facts.** Re-read repository instructions and inspect the
+   cited paths, symbols, behavior, tests, and assumptions. Also inspect current
+   Git changes without overwriting developer work. If a material fact no longer
+   holds, stop and return to planning in plain language.
+4. **Run full minimality analysis.** Invoke `ponytail:ponytail` with `full` before
+   selecting implementation scope or making edits. After success emit
+   `Provider: ponytail:ponytail — SUCCEEDED`. On a post-load invocation failure
+   emit `BLOCKED_PROVIDER: ponytail:ponytail — cause` and stop with no downstream
+   work or source mutation; there is no internal fallback. Provider output may
+   reduce scope but may not remove requested behavior or any QaaS safety gate.
+5. **Select the domain overlay.** Use `add-framework-hook` for a proven Type A
+   hook and `extend-framework-core` for a proven Type B family. Otherwise execute
+   the ordinary approved steps directly.
+6. **Implement test-first.** Establish the planned failing behavioral test and
+   capture its expected failure before production changes. Use equivalent
+   regression evidence only when the reviewed plan explains why a pre-change
+   failure cannot be demonstrated. Make the smallest approved change, then run
+   focused and repository checks.
+7. **Control divergence.** Stop and return to planning when a named path or
+   symbol is absent, an assumption becomes false, behavior changes, or material
+   new scope is needed.
+8. **Verify independently.** Give the raw request, Know QaaS brief, approved plan,
+   final diff, and raw command output to `qaas-verifier`. Only a successful
+   independent verdict permits completion or release. Resolve in-scope findings
+   and verify again; re-plan material corrections.
+9. **Respect the release boundary.** Apply `release-and-mirror` only after
+   successful verification and only when the developer explicitly authorized
+   the exact release targets. Otherwise provide a release handoff without
+   tagging, publishing, or changing remote state.
 
 ## Done when
 
-The diff matches the approved revision and digest, planned tests and repository
-checks have real outcomes, the independent verifier returned `verified`, and any
+The diff matches the approved plan, planned tests and repository checks have real
+outcomes, `qaas-verifier` has independently verified the change, and any
 remaining release work is explicit.
