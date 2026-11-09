@@ -39,6 +39,20 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Checkout pinned Grilling provider
+        uses: actions/checkout@v4
+        with:
+          repository: mattpocock/skills
+          ref: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
+          path: provider-checkouts/mattpocock-skills
+
+      - name: Checkout pinned Ponytail provider
+        uses: actions/checkout@v4
+        with:
+          repository: DietrichGebert/ponytail
+          ref: 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846
+          path: provider-checkouts/ponytail
+
       - name: Require evaluation credentials
         run: test -n "$ANTHROPIC_API_KEY"
 
@@ -48,37 +62,43 @@ jobs:
       - name: Validate plugin structure
         run: claude plugin validate .
 
-      - name: Run plugin conformance evals
+      - name: Verify provider identities
+        run: |
+          test "$(git -C provider-checkouts/mattpocock-skills rev-parse HEAD)" = "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+          test "$(git -C provider-checkouts/ponytail rev-parse HEAD)" = "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          providers = (
+              (Path("provider-checkouts/mattpocock-skills"), "mattpocock-skills", "1.3.2", "skills/productivity/grilling/SKILL.md"),
+              (Path("provider-checkouts/ponytail"), "ponytail", "5.3.3", "skills/ponytail/SKILL.md"),
+          )
+          for root, name, version, skill in providers:
+              manifest = json.loads((root / ".claude-plugin/plugin.json").read_text())
+              assert manifest["name"] == name
+              assert manifest["version"] == version
+              assert (root / skill).is_file()
+          PY
+
+      - name: Run provider-aware lifecycle evals
         run: |
           mkdir -p evals/results
-          claude plugin eval . \
-            --scaffold \
-            --trust-plugin \
-            --allow-tools Bash Write Edit \
-            --model "${{ inputs.agent_model }}" \
-            --judge-model "${{ inputs.judge_model }}" \
-            --runs "${{ inputs.runs }}" \
-            --ablation none \
-            --threshold "${{ inputs.threshold }}" \
-            --max-cost-usd 30 \
-            --no-publish \
-            --json evals/results/conformance.json
-
-      - name: Measure plugin lift
-        if: ${{ inputs.run_ablation }}
-        run: |
-          claude plugin eval . \
-            --scaffold \
-            --trust-plugin \
-            --allow-tools Bash Write Edit \
-            --model "${{ inputs.agent_model }}" \
-            --judge-model "${{ inputs.judge_model }}" \
-            --runs "${{ inputs.runs }}" \
-            --ablation with-without \
-            --threshold 0 \
-            --max-cost-usd 30 \
-            --no-publish \
-            --json evals/results/ablation.json
+          args=(
+            --plugin-root .
+            --grilling-root provider-checkouts/mattpocock-skills
+            --ponytail-root provider-checkouts/ponytail
+            --model "${{ inputs.agent_model }}"
+            --judge-model "${{ inputs.judge_model }}"
+            --runs "${{ inputs.runs }}"
+            --threshold "${{ inputs.threshold }}"
+            --max-cost-usd 30
+            --output-root evals/results
+          )
+          if [[ "${{ inputs.run_ablation }}" == "true" ]]; then
+            args+=(--ablation)
+          fi
+          python3 scripts/provider_eval_runner.py "${args[@]}"
 
       - name: Upload evaluation report
         if: always()

@@ -32,16 +32,20 @@ source evidence is unavailable.
 
 ## Method
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/references/plan-template.md`.
-2. Read each repository's `CLAUDE.md` and relevant `project_specs.md` before
+1. Explicitly invoke `ponytail:ponytail` with `full` before deciding scope or
+   drafting. Emit `Provider: ponytail:ponytail — SUCCEEDED` after success. On
+   failure emit `BLOCKED_PROVIDER: ponytail:ponytail — cause` and stop; do not
+   draft or perform downstream work, and do not use an internal fallback.
+2. Read `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/references/plan-template.md`.
+3. Read each repository's `CLAUDE.md` and relevant `project_specs.md` before
    source conclusions.
-3. Use only read-only discovery commands. Do not build, restore, format,
+4. Use only read-only discovery commands. Do not build, restore, format,
    generate, install, change Git state, or contact a mutating external system.
-4. Capture each repository baseline with
+5. Capture each repository baseline with
    `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/scripts/repo_snapshot.py`.
-5. Prove the bug root cause or feature/refactor integration seam. Trace callers,
+6. Prove the bug root cause or feature/refactor integration seam. Trace callers,
    configuration, tests, generated surfaces, dependencies, and release edges.
-6. Draft the smallest complete plan using the canonical schema. Use real paths,
+7. Draft the smallest complete plan using the canonical schema. Use real paths,
    symbols, conventions, test IDs, acceptance criteria, dependencies, and
    commands from repository instructions.
 

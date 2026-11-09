@@ -55,6 +55,15 @@ The reviewed revision and content digest, developer-approved revision and digest
 and current plan must match. A material plan edit or source-baseline change stops
 implementation and requires a new review and approval.
 
+## External workflow providers
+
+Planning interviews explicitly invoke `mattpocock-skills:grilling`. Planning,
+implementation, independent review, and independent verification explicitly
+invoke `ponytail:ponytail` with `full`. A successful call reports
+`Provider: exact-skill-id — SUCCEEDED`; a post-load invocation failure reports
+`BLOCKED_PROVIDER: exact-skill-id — cause` and stops without an internal
+fallback. Provider output cannot bypass any QaaS lifecycle gate.
+
 ## Core workflow skills
 
 EOF

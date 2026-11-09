@@ -48,33 +48,38 @@ Stop on a missing input, `DRAFT`, `AWAITING_APPROVAL`, `NEEDS_DECISION`,
    digest and requires fresh technical review and developer approval.
 4. **Load local authority.** Read each repository's current `CLAUDE.md` and
    relevant `project_specs.md`. Stop if they contradict the plan.
-5. **Select the domain overlay.** Use `add-framework-hook` for a verified Type A
+5. **Run full minimality analysis.** Explicitly invoke `ponytail:ponytail` with
+   `full` before selecting implementation scope or making edits. Emit
+   `Provider: ponytail:ponytail — SUCCEEDED` after success. On a post-load
+   invocation failure emit `BLOCKED_PROVIDER: ponytail:ponytail — cause` and
+   stop with no downstream work or source mutation; there is no internal
+   fallback. Ponytail may reduce accidental scope but may not remove requested
+   behavior or any QaaS gate.
+6. **Select the domain overlay.** Use `add-framework-hook` for a verified Type A
    hook and `extend-framework-core` for a verified Type B family. Otherwise
    execute the approved ordinary-change steps directly.
-6. **Execute in approved order.** Establish the planned failing behavioral test
+7. **Execute in approved order.** Establish the planned failing behavioral test
    first and capture its expected failure before production changes. An exception
    is valid only when the reviewed plan documents why a pre-change failure cannot
    be demonstrated and names equivalent regression evidence. Implement the
    smallest approved behavior change, then run focused and full checks from the
    repository instructions.
-7. **Control divergence.** Stop and return to planning when a named path or
+8. **Control divergence.** Stop and return to planning when a named path or
    symbol is absent, an assumption becomes false, requested behavior changes,
    or implementation requires material scope not present in the plan. A material
    plan edit invalidates review and developer approval.
-8. **Verify independently.** Delegate the final diff, approved plan, and raw
+9. **Verify independently.** Delegate the final diff, approved plan, and raw
    command output to `qaas-verifier`. Only `verified` permits completion or a
    release. On `partially-verified` or `not-verified`, stop for an in-plan fix,
    re-planning, or an explicit incomplete handoff, then verify again.
-9. **Handle release scope.** Apply `release-and-mirror` only after `verified` and
+10. **Handle release scope.** Apply `release-and-mirror` only after `verified` and
    when the approved plan records
    `release.authorization: AUTHORIZED_AFTER_VERIFICATION`, or the developer
    separately authorizes the exact targets. Otherwise report the release handoff
    without tagging or publishing.
 
-Optional developer plugins already active in the session may strengthen coding,
-testing, or review. Never install or reconfigure them, and never let them bypass
-QaaS evidence, the approved plan, repository instructions, tests, independent
-verification, or release authorization.
+Provider output never bypasses QaaS evidence, the approved plan, repository
+instructions, tests, independent verification, or release authorization.
 
 ## Done when
 

@@ -82,6 +82,8 @@ run_check "Python syntax" python3 -m compileall -q "$ROOT/scripts" "$ROOT/skills
 run_check "repository utility unit tests" python3 -m unittest discover -q "$ROOT/scripts"
 run_check "plan and baseline unit tests" \
   python3 -m unittest discover -q "$ROOT/skills/plan-qaas-change/scripts"
+run_check "knowledge graph wrapper unit tests" \
+  python3 -m unittest discover -q "$ROOT/skills/qaas-knowledge-graph/scripts"
 run_check "eval layout" python3 "$ROOT/scripts/lint-evals.py" "$ROOT/evals"
 
 echo "==> shell syntax and eval fixtures"

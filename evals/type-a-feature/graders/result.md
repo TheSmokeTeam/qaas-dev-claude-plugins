@@ -6,7 +6,8 @@ weight: 3
 PASS only if the response carries the complete Know QaaS brief, classifies the
 generator as Type A, plans exact UppercaseGenerator configuration and test
 locations in QaaS.Common.Generators by following ConstantGenerator, avoids a
-Framework edit, includes test-first acceptance traceability, a full source
+Framework edit, shows successful explicit `ponytail:ponytail` full calls by
+planning and review, includes test-first acceptance traceability, a full source
 baseline, and a canonical plan digest, and covers the Common-package to
 PackageMirror to docs handoff. The reviewed plan must record the confirmed
 decisions and remain AWAITING_APPROVAL with reviewer and pending developer state

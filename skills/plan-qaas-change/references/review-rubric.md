@@ -39,9 +39,11 @@ the plan, answer developer-owned decisions, or grant developer approval.
 9. **Completeness:** API, configuration, schema, callers, docs, packaging,
    release, compatibility, migration, security, performance, observability,
    rollout, and rollback are addressed or validly `N/A`.
-10. **Minimality:** existing code, platform capabilities, and installed
-    dependencies were preferred before new abstractions; unrelated cleanup and
-    speculative flexibility are excluded without cutting required quality work.
+10. **Minimality:** the reviewer has successfully invoked
+    `ponytail:ponytail` with `full`; existing code, platform capabilities, and
+    installed dependencies were preferred before new abstractions; unrelated
+    cleanup and speculative flexibility are excluded without cutting required
+    quality work.
 11. **Review-unit integrity:** recompute `plan_digest`; the verdict names the
     current `plan_revision` and digest. Material corrections or baseline
     replacements create a new revision and digest and require another review.

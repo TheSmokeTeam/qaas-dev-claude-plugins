@@ -18,7 +18,7 @@ approval decision. Do not implement the requested production change.
 ## Read before planning
 
 - [references/developer-interview.md](references/developer-interview.md) for the
-  facts-versus-decisions interview and optional plugin interoperability.
+  facts-versus-decisions interview and required provider dispatch.
 - [references/plan-template.md](references/plan-template.md) for the output
   schema.
 - [references/review-rubric.md](references/review-rubric.md) when delegating
@@ -44,11 +44,19 @@ approval decision. Do not implement the requested production change.
 2. **Research facts.** Inspect instructions, source, callers, tests, sibling
    conventions, generated surfaces, graph relationships, and release edges
    before asking the developer anything the codebase can answer.
-3. **Interview the developer.** Follow `developer-interview.md`. Record numbered
-   decisions (`D-1`, `D-2`, ...) when material choices exist; otherwise record
-   that research found no material developer-owned decision. Require explicit
-   confirmation of shared understanding. Unresolved material decisions produce
-   `NEEDS_DECISION`.
+3. **Interview the developer on interview-required routes.** For a new or
+   materially replanned feature, bugfix, or refactor, follow
+   `developer-interview.md` and explicitly invoke
+   `mattpocock-skills:grilling`. Emit
+   `Provider: mattpocock-skills:grilling — SUCCEEDED` after success. On a
+   post-load invocation failure emit
+   `BLOCKED_PROVIDER: mattpocock-skills:grilling — cause` and stop before plan
+   drafting or downstream delegation; there is no internal fallback. Record
+   numbered decisions (`D-1`, `D-2`, ...) when material choices exist; otherwise
+   record that research found no material developer-owned decision. Require
+   explicit confirmation of shared understanding. Unresolved material decisions
+   produce `NEEDS_DECISION`. Do not invoke Grilling for knowledge-only, status,
+   release-only, or exact approved-plan execution routes.
 4. **Capture repository baselines.** Run
    `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/scripts/repo_snapshot.py` for
    every inspected checkout. Record its repository identity, full commit, and

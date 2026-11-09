@@ -27,14 +27,18 @@ and dependency claims as unverified until sampled in source.
 
 ## Method
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/references/review-rubric.md`.
-2. Read the owning repositories' instructions and sample the plan's material
+1. Explicitly invoke `ponytail:ponytail` with `full` before assessing scope and
+   minimality. Emit `Provider: ponytail:ponytail — SUCCEEDED` after success. On
+   failure emit `BLOCKED_PROVIDER: ponytail:ponytail — cause` and stop; do not
+   review or perform downstream work, and do not use an internal fallback.
+2. Read `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/references/review-rubric.md`.
+3. Read the owning repositories' instructions and sample the plan's material
    evidence directly.
-3. Recompute repository baselines with
+4. Recompute repository baselines with
    `${CLAUDE_PLUGIN_ROOT}/skills/plan-qaas-change/scripts/repo_snapshot.py`.
-4. Compare the raw request and decisions directly with the plan. Do not rely on
+5. Compare the raw request and decisions directly with the plan. Do not rely on
    planner reasoning that is not in the supplied artifacts.
-5. Recompute the canonical plan digest with the bundled validator. Return
+6. Recompute the canonical plan digest with the bundled validator. Return
    findings in rubric format, ordered by severity, followed by the exact reviewed
    revision, digest, and verdict.
 
