@@ -63,15 +63,15 @@ or repository evidence changes.
 | Release or mirror packages | `release-and-mirror` |
 
 Knowledge-only requests stop after answering from evidence. Plan-only requests
-stop after the developer's approval decision. Implementation requests pause at
-`AWAITING_APPROVAL` and resume only after explicit approval of the reviewed
-revision.
+stop after the developer's approval decision. Implementation requests pause
+after independent review and resume only when the developer explicitly approves
+the reviewed plan.
 
 An `undetermined` extension model is a valid brief result, not permission to
 guess and not a reason to bypass the next owner. Do not select a Type A or Type B
 overlay while it remains undetermined. Pass the missing evidence forward; the
-planning or implementation owner returns `BLOCKED` if it cannot resolve the
-classification safely.
+planning or implementation owner stops and names the missing evidence if it
+cannot resolve the classification safely.
 
 ## Done when
 

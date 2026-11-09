@@ -1,10 +1,11 @@
 {
   "name": "qaas-platform-dev",
-  "version": "0.4.0",
-  "description": "Evidence-backed QaaS platform development from ecosystem context and developer interview through content-bound approval, test-first implementation, independent verification, and authorized release.",
+  "version": "0.5.0",
+  "description": "Evidence-backed QaaS platform development from ecosystem context and developer interview through short-plan approval, test-first implementation, independent verification, and authorized release.",
   "author": { "name": "TheSmokeTeam" },
   "homepage": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "repository": "https://github.com/TheSmokeTeam/qaas-dev-claude-plugins",
   "license": "MIT",
-  "keywords": ["qaas", "platform-development", "developer-interview", "spec-driven-development", "test-driven-development", "implementation-plan", "verification", "csharp", "dotnet", "monorepo", "thesmoketeam"]
+  "keywords": ["qaas", "platform-development", "developer-interview", "spec-driven-development", "test-driven-development", "implementation-plan", "verification", "csharp", "dotnet", "monorepo", "thesmoketeam"],
+  "dependencies": ["mattpocock-skills", "ponytail"]
 }

@@ -18,17 +18,29 @@ and live source override memory and volatile inventories in this plugin.
 
 ## Change lifecycle
 
-1. Understand QaaS and route the request.
-2. Interview the developer and freeze an exact evidence-backed plan revision.
-3. Review that revision independently.
-4. Wait for explicit developer approval of the same revision.
-5. Implement test-first only while the plan and repository baselines remain current.
-6. Verify independently.
-7. Release only when explicitly authorized.
+1. Request.
+2. Know QaaS.
+3. Research/design.
+4. Interview.
+5. Create a short evidence-backed, test-first plan.
+6. Review.
+7. Developer approves.
+8. Implement and test.
+9. Verify.
+10. Release if authorized.
 
-The reviewed revision and content digest, developer-approved revision and digest,
-and current plan must match. A material plan edit or source-baseline change stops
-implementation and requires a new review and approval.
+A material plan change requires another independent review and explicit developer
+approval. Source facts are rechecked before editing; material divergence returns
+the task to planning.
+
+## External workflow providers
+
+Planning interviews explicitly invoke `mattpocock-skills:grilling`. Planning,
+implementation, independent review, and independent verification explicitly
+invoke `ponytail:ponytail` with `full`. A successful call reports
+`Provider: exact-skill-id — SUCCEEDED`; a post-load invocation failure reports
+`BLOCKED_PROVIDER: exact-skill-id — cause` and stops without an internal
+fallback. Provider output cannot bypass any QaaS lifecycle gate.
 
 ## Core workflow skills
 
@@ -47,8 +59,7 @@ implementation and requires a new review and approval.
 
 ## Independent agents
 
-- [QaaS change planner](agents/qaas-change-planner.md) — read-only source investigation and draft.
-- [QaaS plan reviewer](agents/qaas-plan-reviewer.md) — independent technical review of one frozen revision.
+- [QaaS plan reviewer](agents/qaas-plan-reviewer.md) — independent technical review of the short plan.
 - [QaaS verifier](agents/qaas-verifier.md) — non-editing verification of the implemented change.
 
 ## Source-of-truth rule

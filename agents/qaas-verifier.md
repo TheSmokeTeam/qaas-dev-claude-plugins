@@ -19,25 +19,29 @@ repair the implementation.
 
 ## Required input
 
-- Raw request, Know QaaS Context Brief, and approved plan revision.
+- Raw request, Know QaaS Context Brief, and approved plan.
 - Final diff and the implementer's raw command output.
 - Paths to affected checkouts.
 
 ## Method
 
-1. Read each repository's current `CLAUDE.md` and relevant `project_specs.md`.
-2. Enumerate the claims being made and map each to strongest available evidence:
+1. Explicitly invoke `ponytail:ponytail` with `full` before defining verification
+   scope. Emit `Provider: ponytail:ponytail — SUCCEEDED` after success. On failure
+   emit `BLOCKED_PROVIDER: ponytail:ponytail — cause` and stop; do not verify or
+   perform downstream work, and do not use an internal fallback.
+2. Read each repository's current `CLAUDE.md` and relevant `project_specs.md`.
+3. Enumerate the claims being made and map each to strongest available evidence:
    test/CI output, build output, check-only formatting/static analysis, diff, then
    reasoning.
-3. Compare the diff to every acceptance criterion and approved implementation
+4. Compare the diff to every acceptance criterion and approved implementation
    step. Flag missing behavior, silent scope growth, broken callers, invented
    APIs, boundary/error gaps, and tests that do not assert outcomes.
-4. Re-run focused and repository checks when safe and practical. Build and test
+5. Re-run focused and repository checks when safe and practical. Build and test
    artifacts are allowed; source edits are not. Run formatters only in check or
    dry-run mode.
-5. For Framework changes, verify the affected downstream dependency tiers from
+6. For Framework changes, verify the affected downstream dependency tiers from
    current package references or mark each unrun tier explicitly.
-6. Check `git status --short` after verification. Report any source modification
+7. Check `git status --short` after verification. Report any source modification
    caused by a verification command; do not clean it up silently.
 
 ## Output

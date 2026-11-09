@@ -37,8 +37,10 @@ Never build a graph from the open repository.
 The wrapper places `qaas-graph` beside an opened Git repository, or directly
 under a non-Git workspace root. It uses a shallow, blob-filtered sparse checkout
 of canonical `main` that materializes only `graphify-out/graph.json` and
-`requirements.txt`. It updates only a clean cache that it previously marked as
-managed, and never overwrites another checkout.
+the locked `pyproject.toml` and `uv.lock`. It updates only a clean cache that it
+previously marked as managed, and never overwrites another checkout. Queries run
+as `uv run --project <cache> --locked graphify query`; uv synchronizes the pinned
+project without using a global Graphify executable.
 
 ## Hard boundaries
 
@@ -48,6 +50,6 @@ managed, and never overwrites another checkout.
   learning files to the canonical clone.
 - Never scan local QaaS repositories or create `graphify-out` in them.
 - Never edit, regenerate, recluster, enrich, or directly write the cached graph.
-- Do not install Graphify automatically. If the wrapper reports it missing,
-  show the pinned requirement path it provides and request permission before
-  changing the machine's toolchain.
+- Do not install uv or Graphify automatically. Missing uv, a stale lock, or a
+  locked command failure is blocking; report the wrapper error with no PATH,
+  requirements-file, or installation fallback.

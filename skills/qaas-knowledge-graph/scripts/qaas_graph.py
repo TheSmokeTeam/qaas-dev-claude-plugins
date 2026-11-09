@@ -20,7 +20,8 @@ BRANCH = "main"
 GRAPH_RELATIVE_PATH = Path("graphify-out/graph.json")
 SPARSE_CHECKOUT_PATHS = (
     f"/{GRAPH_RELATIVE_PATH.as_posix()}",
-    "/requirements.txt",
+    "/pyproject.toml",
+    "/uv.lock",
 )
 MANAGED_KEY = "qaas.graphCacheManaged"
 SYNCED_COMMIT_KEY = "qaas.graphCacheCommit"
@@ -346,26 +347,15 @@ def ensure_graph(workspace: Path) -> Path:
     return graph_path
 
 
-def _graphify_requirement(repo: Path) -> str:
-    requirements = repo / "requirements.txt"
-    if requirements.is_file():
-        try:
-            for line in requirements.read_text(encoding="utf-8").splitlines():
-                if line.strip().casefold().startswith("graphifyy"):
-                    return f"{line.strip()} from {requirements}"
-        except OSError:
-            pass
-    return f"the Graphify requirement declared by {repo}"
-
-
 def query_graph(graph_path: Path, question: str, *, dfs: bool, budget: int) -> int:
-    graphify = shutil.which("graphify")
-    if not graphify:
-        requirement = _graphify_requirement(graph_path.parent.parent)
+    uv = shutil.which("uv")
+    if not uv:
         raise QaasGraphError(
-            f"Graphify CLI is not installed. Install {requirement}, then rerun; no installation was attempted."
+            "uv 0.13.7 is required to run the locked qaas-graph project; "
+            "no installation or PATH fallback was attempted"
         )
 
+    project_root = graph_path.parent.parent
     with tempfile.TemporaryDirectory(prefix="qaas-graph-query-") as temp_dir:
         temp_root = Path(temp_dir)
         temp_output = temp_root / "graphify-out"
@@ -374,7 +364,12 @@ def query_graph(graph_path: Path, question: str, *, dfs: bool, budget: int) -> i
         shutil.copyfile(graph_path, temp_graph)
 
         command = [
-            graphify,
+            uv,
+            "run",
+            "--project",
+            str(project_root),
+            "--locked",
+            "graphify",
             "query",
             question,
             "--budget",
@@ -386,8 +381,22 @@ def query_graph(graph_path: Path, question: str, *, dfs: bool, budget: int) -> i
             command.append("--dfs")
         env = os.environ.copy()
         env["GRAPHIFY_QUERY_LOG_DISABLE"] = "1"
-        result = subprocess.run(command, cwd=temp_root, env=env, check=False)
-        return result.returncode
+        result = subprocess.run(
+            command,
+            cwd=temp_root,
+            env=env,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            detail = (result.stderr or result.stdout or "uv command failed").strip()
+            raise QaasGraphError(f"locked Graphify query failed: {detail}")
+        if result.stdout:
+            print(result.stdout, end="")
+        if result.stderr:
+            print(result.stderr, end="", file=sys.stderr)
+        return 0
 
 
 def _positive_int(value: str) -> int:

@@ -11,7 +11,7 @@ description: >-
 # Add a Type A Reflection Hook
 
 Use this domain overlay through `implement-qaas-change`. If no current approved
-plan has passed that skill's revision and freshness gates, stop there.
+plan has passed that skill's approval and source-freshness gates, stop there.
 
 ## Stable architecture
 

@@ -1,55 +1,32 @@
-# Developer Interview and Optional Plugin Policy
+# Developer Interview and Provider Policy
 
 Use this protocol after researching codebase facts and before drafting the plan.
 
 ## Separate facts from decisions
 
-Research repositories, source, tests, documentation, and graph evidence yourself.
+Research repositories, source, tests, documentation, and graph evidence first.
 Ask the developer only about choices that materially affect product behavior,
 scope, compatibility, architecture, rollout, or risk tolerance.
 
-For each decision round:
+Invoke the exact Skill `mattpocock-skills:grilling` as the interview engine.
+Follow its procedure while keeping QaaS responsible for the facts-versus-decisions
+boundary. Ask only necessary developer-owned questions, include a recommendation
+and tradeoff, and do not silently choose on the developer's behalf.
 
-1. Map unresolved decisions as a dependency tree.
-2. Ask only the current decision frontier; do not ask downstream questions whose
-   options depend on an unanswered parent decision.
-3. Number every question and include a recommended answer plus its tradeoff.
-4. Wait for the developer's answers. Do not silently choose on their behalf.
-5. Record each answer as `D-n`, then recompute the next frontier.
+After a successful invocation, emit exactly:
 
-Finish by summarizing the outcome, constraints, non-goals, and decisions. Ask the
-developer to confirm that shared understanding explicitly. Confirmation of the
-interview is not approval of the plan that will be drafted later.
+`Provider: mattpocock-skills:grilling — SUCCEEDED`
 
-## Grill Me
+If the Skill cannot be invoked after QaaS has loaded, emit
+`BLOCKED_PROVIDER: mattpocock-skills:grilling — cause` and stop. Do not draft a
+plan, invoke a downstream agent, or substitute a QaaS-owned interview algorithm.
 
-When Matt Pocock's model-invoked `grilling` skill is already available, use it as
-the interview engine. Do not invoke a user-only command wrapper, install the
-plugin, or change its settings. The QaaS facts-versus-decisions boundary,
-numbered decision record, shared-understanding confirmation, and later approval
-gate still apply.
+Finish by summarizing the requested outcome, constraints, non-goals, and confirmed
+decisions. Ask the developer to confirm the shared understanding when a material
+choice was made or remains ambiguous. That confirmation is not approval of the
+plan that will be drafted and reviewed later.
 
-## Ponytail
-
-Use Ponytail only when a Ponytail-provided skill or tool is visible in the current
-session and exposes its active minimality level. Do not infer an opaque plugin's
-state or change its global mode. If the level cannot be read, use the built-in
-minimality sequence and record that fallback:
-
-1. Is a code change required?
-2. Can existing QaaS code solve the problem?
-3. Can an existing platform capability solve it?
-4. Can an already installed dependency solve it?
-5. What is the smallest complete diff?
-
-Record rejected alternatives and scope. Minimality must never remove requested
-behavior, validation, error handling, security, compatibility, tests,
-observability, or required release work.
-
-## Other developer plugins
-
-An already active developer plugin may strengthen discovery, coding, testing, or
-review. It is an optional collaborator, not a workflow authority. Never install,
-configure, or mutate another plugin, and never allow it to replace QaaS evidence,
-repository instructions, independent review, explicit approval, tests,
-verification, or release authorization.
+Do not invoke a user-only command wrapper, install a provider, or change provider
+settings. Other provider capabilities may strengthen discovery, coding, testing,
+or review, but never replace QaaS evidence, repository instructions, independent
+review, explicit approval, tests, verification, or release authorization.
