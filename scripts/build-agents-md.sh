@@ -47,7 +47,7 @@ and live source override memory and volatile inventories in this plugin.
 2. Know QaaS.
 3. Research/design.
 4. Interview.
-5. Create a short evidence-backed, test-first plan.
+5. Create an evidence-backed, test-first implementation plan.
 6. Review.
 7. Developer approves.
 8. Implement and test.
@@ -90,7 +90,7 @@ EOF
 
 ## Independent agents
 
-- [QaaS plan reviewer](agents/qaas-plan-reviewer.md) — independent technical review of the short plan.
+- [QaaS plan reviewer](agents/qaas-plan-reviewer.md) — independent technical review of the implementation plan.
 - [QaaS verifier](agents/qaas-verifier.md) — non-editing verification of the implemented change.
 
 ## Source-of-truth rule

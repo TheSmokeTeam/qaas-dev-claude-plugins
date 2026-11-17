@@ -1,5 +1,5 @@
 ---
-description: Deliver a QaaS feature, bugfix, or refactor through Know QaaS, research/design, interview, short plan, review, approval, implementation and testing, and verification.
+description: Deliver a QaaS feature, bugfix, or refactor through Know QaaS, research/design, interview, implementation planning, review, approval, implementation and testing, and verification.
 argument-hint: "<feature, bugfix, or refactor request>"
 ---
 

@@ -101,6 +101,10 @@ class ProviderWorkflowContractTests(unittest.TestCase):
     def test_readme_discloses_provider_trust_and_ponytail_side_effects(self) -> None:
         readme = self.text(ROOT / "README.md")
 
+        self.assertIn(".claude-plugin/marketplace.json", readme)
+        self.assertNotIn("QaaS 0.5.0", readme)
+        self.assertNotRegex(readme, r"\b[0-9a-f]{40}\b")
+        self.assertNotIn("Knowledge-graph queries require", readme)
         for required in (
             "SessionStart",
             "SubagentStart",

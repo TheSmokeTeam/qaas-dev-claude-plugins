@@ -9,6 +9,7 @@ DEVELOP = ROOT / "skills/develop-qaas-change/SKILL.md"
 PLAN = ROOT / "skills/plan-qaas-change/SKILL.md"
 IMPLEMENT = ROOT / "skills/implement-qaas-change/SKILL.md"
 README = ROOT / "README.md"
+VALIDATE = ROOT / "scripts/validate-plugin.sh"
 AGENT_NAMES = ("qaas-plan-reviewer", "qaas-verifier")
 
 REMOVED_FILES = (
@@ -71,7 +72,7 @@ class SimplifiedWorkflowContractTests(unittest.TestCase):
             "Know QaaS",
             "Research/design",
             "Interview",
-            "Create short plan",
+            "Create implementation plan",
             "Review",
             "Developer approves",
             "Implement and test",
@@ -96,7 +97,7 @@ class SimplifiedWorkflowContractTests(unittest.TestCase):
             "| Know QaaS | `qaas-platform-overview` |",
             "| Research/design | `plan-qaas-change` |",
             "| Interview | `plan-qaas-change` |",
-            "| Create short plan | `plan-qaas-change` |",
+            "| Create implementation plan | `plan-qaas-change` |",
             "| Review | `qaas-plan-reviewer` agent |",
             "| Developer approves | Developer |",
             "| Implement and test | `implement-qaas-change` |",
@@ -107,8 +108,11 @@ class SimplifiedWorkflowContractTests(unittest.TestCase):
             with self.subTest(row=row):
                 self.assertIn(row, readme)
 
-    def test_short_plan_is_the_consistent_public_term(self) -> None:
+    def test_reviewed_implementation_plan_is_the_consistent_public_term(self) -> None:
         corpus = self.workflow_corpus().lower()
+        self.assertNotIn("short plan", corpus)
+        self.assertNotIn("short-plan", corpus)
+        self.assertNotIn("short reviewed", corpus)
         self.assertNotIn("concise plan", corpus)
         self.assertNotIn("concise-plan", corpus)
         self.assertNotIn("concise reviewed", corpus)
@@ -125,7 +129,7 @@ class SimplifiedWorkflowContractTests(unittest.TestCase):
         self.assertIn("qaas-plan-reviewer", planning)
         self.assertIn("qaas-verifier", implementation)
 
-    def test_short_plan_keeps_the_real_safety_content(self) -> None:
+    def test_implementation_plan_keeps_the_real_safety_content(self) -> None:
         planning = self.text(PLAN)
         normalized = " ".join(planning.split())
         for requirement in (
@@ -151,6 +155,13 @@ class SimplifiedWorkflowContractTests(unittest.TestCase):
             "Explicit developer approval is the successful planning outcome",
             normalized,
         )
+
+    def test_online_link_scan_uses_only_tracked_markdown(self) -> None:
+        validation = self.text(VALIDATE)
+
+        self.assertIn('git -C "$ROOT" grep', validation)
+        self.assertIn("-- '*.md'", validation)
+        self.assertNotIn("grep -rhoE", validation)
 
     def test_implementation_rechecks_facts_and_preserves_delivery_gates(self) -> None:
         implementation = " ".join(self.text(IMPLEMENT).lower().split())

@@ -1,7 +1,7 @@
 ---
 name: qaas-plan-reviewer
 description: >-
-  Independent read-only technical reviewer for a short QaaS implementation
+  Independent read-only technical reviewer for a proposed QaaS implementation
   plan. Verifies request fidelity, source evidence, minimal scope, test-first
   executability, risks, and release impact without granting developer approval.
 tools: Read, Glob, Grep, Bash, Skill
