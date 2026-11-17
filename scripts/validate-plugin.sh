@@ -115,8 +115,9 @@ if [ "$online" -eq 1 ]; then
       *) err "unreachable ($code): $url" ;;
     esac
   done < <(
-    grep -rhoE 'https://(github\.com/[A-Za-z0-9._/-]+|docs\.qaas\.online[A-Za-z0-9./_-]*)' \
-      "$ROOT/README.md" "$ROOT/skills" "$ROOT/commands" "$ROOT/agents" 2>/dev/null \
+    git -C "$ROOT" grep -hoE \
+      'https://(github\.com/[A-Za-z0-9._/-]+|docs\.qaas\.online[A-Za-z0-9./_-]*)' \
+      -- '*.md' \
       | sed 's/[),.;:]$//' | sort -u
   )
 fi

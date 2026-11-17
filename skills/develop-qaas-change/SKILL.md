@@ -2,7 +2,7 @@
 name: develop-qaas-change
 description: >-
   Orchestrate a QaaS platform feature, bugfix, or refactor from ecosystem
-  understanding through developer interview, a short reviewed plan, explicit
+  understanding through developer interview, a reviewed implementation plan, explicit
   approval, test-first implementation, independent verification, and optional
   release handoff. Use when the developer expects the complete change lifecycle.
 ---
@@ -21,8 +21,8 @@ Own the end-to-end lifecycle while delegating each stage to its specialist.
    integration seams, scope, and design options.
 4. **Interview.** Continue `plan-qaas-change` to resolve material
    developer-owned decisions after research.
-5. **Create short plan.** Continue `plan-qaas-change` to produce the smallest
-   evidence-backed, test-first plan.
+5. **Create implementation plan.** Continue `plan-qaas-change` to produce the
+   smallest complete, evidence-backed, test-first plan.
 6. **Review.** Have `qaas-plan-reviewer` check the complete plan independently.
    Requested changes return to plan creation and review; return to research or
    interview too when facts or developer-owned decisions changed.

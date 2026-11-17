@@ -2,9 +2,9 @@
 
 A Claude Code plugin for developers changing the
 [TheSmokeTeam](https://github.com/TheSmokeTeam) QaaS platform. It combines live
-repository evidence, the QaaS knowledge graph, short reviewed planning,
-test-first implementation, independent verification, and release
-discipline so a developer does not need to be fluent in every QaaS repository.
+repository evidence, the QaaS knowledge graph, reviewed implementation planning,
+test-first implementation, independent verification, and release discipline so
+a developer does not need to be fluent in every QaaS repository.
 
 This plugin develops the platform itself. It is not a guide for authoring test
 scenarios with QaaS.
@@ -16,7 +16,7 @@ flowchart LR
     A["Request"] --> B["Know QaaS"]
     B --> C["Research/design"]
     C --> D["Interview"]
-    D --> E["Create short plan"]
+    D --> E["Create implementation plan"]
     E --> F["Review"]
     F --> G{"Developer approves?"}
     G -- "changes" --> E
@@ -32,7 +32,7 @@ implementation. A material plan change requires another review and explicit
 approval. Before editing, the implementer rechecks the cited source facts and
 returns to planning if they no longer hold.
 
-## One owner per stage
+## Responsibilities
 
 | Stage | Owner | Output |
 |---|---|---|
@@ -40,7 +40,7 @@ returns to planning if they no longer hold.
 | Know QaaS | `qaas-platform-overview` | QaaS Context Brief |
 | Research/design | `plan-qaas-change` | Source-backed facts and design |
 | Interview | `plan-qaas-change` | Confirmed developer decisions |
-| Create short plan | `plan-qaas-change` | Evidence-backed, test-first plan |
+| Create implementation plan | `plan-qaas-change` | Evidence-backed, test-first plan |
 | Review | `qaas-plan-reviewer` agent | Material findings and readiness |
 | Developer approves | Developer | Explicit implementation authorization |
 | Implement and test | `implement-qaas-change` | Plan-conforming tested diff |
@@ -70,24 +70,24 @@ non-editing roles. Neither can authorize implementation.
 
 Skills remain directly invocable under the `qaas-platform-dev` namespace.
 
-## External workflow providers
+## Dependencies and trust
 
-QaaS 0.5.0 declares two hard same-marketplace dependencies. Installing only
-`qaas-platform-dev` installs and enables both providers:
+The plugin declares two hard same-marketplace dependencies. Their exact versions
+and immutable source revisions live in the
+[marketplace manifest](.claude-plugin/marketplace.json) and are verified by CI:
 
-- `mattpocock-skills` 1.3.2 at commit
-  `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`, providing
-  `mattpocock-skills:grilling` for developer interviews.
-- `ponytail` 5.3.3 at commit
-  `96608e078b2d5ea607c5c3b8b5a54d1c1fba6846`, providing
-  `ponytail:ponytail` full minimality analysis for planning, implementation,
-  independent review, and independent verification.
+- `mattpocock-skills` provides `mattpocock-skills:grilling` for developer
+  interviews.
+- `ponytail` provides `ponytail:ponytail` full minimality analysis for planning,
+  implementation, independent review, and independent verification.
+
+Installing `qaas-platform-dev` installs and enables both providers.
 
 Every required call is explicit. Success is reported as
 `Provider: exact-skill-id — SUCCEEDED`. If the plugin loaded but a required Skill
 call fails, the stage reports `BLOCKED_PROVIDER: exact-skill-id — cause` and
 stops; QaaS contains no interview or minimality fallback. QaaS still owns the
-evidence boundary, short plan, independent review, developer approval,
+evidence boundary, implementation plan, independent review, developer approval,
 test-first implementation, verifier, and release authorization. It deliberately
 does not impose plan-state metadata, history tables, hashes, or a fixed template.
 
@@ -97,7 +97,9 @@ provider while enabled QaaS depends on it, and enabling QaaS automatically
 enables its disabled providers. Those load-time errors are distinct from the
 post-load `BLOCKED_PROVIDER` marker.
 
-QaaS does not configure either provider. Ponytail 5.3.3 contributes
+### Provider privacy
+
+QaaS does not configure either provider. Ponytail contributes
 `SessionStart`, `SubagentStart`, and `UserPromptSubmit` hooks. Its provider-owned
 `ledger` setting defaults to true and records task name, cost, turns, agent time,
 tokens, reuse, and tests in `~/.config/ponytail/band/<project>.csv`. Its optional
@@ -115,17 +117,7 @@ In Claude Code:
 /plugin install qaas-platform-dev@qaas-dev-claude-plugins
 ```
 
-For local development:
-
-```bash
-git -C ../mattpocock-skills checkout 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
-git -C ../ponytail checkout 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846
-claude --plugin-dir . \
-  --plugin-dir ../mattpocock-skills \
-  --plugin-dir ../ponytail
-```
-
-## Repository organization
+## Repository layout
 
 ```text
 .claude-plugin/   package and marketplace metadata
@@ -142,7 +134,19 @@ Normative behavior lives in skills and their references. Commands and this
 README summarize or route; they do not redefine the workflow. `AGENTS.md` is a
 generated portability artifact for agents outside Claude Code.
 
-## Development and verification
+## Develop and verify
+
+For local development, place the two provider checkouts beside this repository
+at the revisions declared in the marketplace manifest, then load all three
+plugin directories:
+
+```bash
+claude --plugin-dir . \
+  --plugin-dir ../mattpocock-skills \
+  --plugin-dir ../ponytail
+```
+
+Run deterministic and installation checks with:
 
 ```bash
 ./scripts/build-agents-md.sh --check
@@ -161,10 +165,3 @@ python3 scripts/provider_eval_runner.py \
 The deterministic validation workflow runs on every push. Model-based evals are
 manually dispatched because they require credentials, pinned models, and an
 explicit cost budget.
-
-Knowledge-graph queries require uv 0.13.7. The wrapper synchronizes the committed
-`qaas-graph` graph plus its `pyproject.toml` and `uv.lock`, then runs Graphify from
-that locked project, so the Graphify version comes only from `qaas-graph`; the
-QaaS plugin does not hardcode it. The wrapper never generates a graph, probes for
-a global Graphify binary, parses `requirements.txt`, or installs tooling
-automatically.

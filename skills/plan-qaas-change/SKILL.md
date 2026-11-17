@@ -2,7 +2,7 @@
 name: plan-qaas-change
 description: >-
   Research a QaaS platform feature, bugfix, or refactor, interview the developer,
-  and prepare a short evidence-backed implementation plan for independent
+  and prepare an evidence-backed implementation plan for independent
   review and explicit approval before code changes.
 ---
 
@@ -44,7 +44,7 @@ interviewing the developer.
    `Provider: ponytail:ponytail — SUCCEEDED`. On failure emit
    `BLOCKED_PROVIDER: ponytail:ponytail — cause` and stop without drafting,
    review, or other downstream work; there is no internal fallback. Then create
-   the short plan directly. It must proportionally cover:
+   the implementation plan directly. It must proportionally cover:
    - goal and scope;
    - confirmed decisions and non-goals;
    - source evidence and design;
@@ -74,5 +74,6 @@ and ask for explicit developer approval again.
 ## Done when
 
 Explicit developer approval is the successful planning outcome. The plan must
-be short, evidence-backed, test-first, independently reviewed, and explicitly
-approved before implementation. Planning itself never edits production files.
+be proportional, evidence-backed, test-first, independently reviewed, and
+explicitly approved before implementation. Planning itself never edits
+production files.
